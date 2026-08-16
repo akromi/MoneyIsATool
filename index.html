@@ -1,0 +1,1735 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Money Is a Tool Calculators</title>
+<meta name="description" content="Companion calculators to the guide Money Is a Tool: household budget, borrowing and payment, savings and goal, and income and tax planning. Everything runs privately in your browser.">
+<meta name="theme-color" content="#0e6f42">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>
+/* ================= Money Is a Tool — ledger-green design tokens ================= */
+:root{
+  --bg:#e9efe8; --surface:#f4f7f3; --surface2:#eef3ec; --card-edge:#dde7dc;
+  --ink:#1c2b22; --ink-soft:#49594f; --ink-faint:#6e7f73;
+  --brand:#0e6f42; --brand-deep:#0a5433; --brand-wash:#e2ede4;
+  --brass:#96690f; --brass-wash:#f3ead1;
+  --line:#cfdccf; --rule:#9db3a0;
+  --input-bg:#fdf9ea; --input-edge:#d9d0a9; --input-focus:#0e6f42;
+  --pos:#0e6f42; --neg:#a8382e; --neg-wash:#f7e7e4;
+  --chip:#e4ece2;
+  --c1:#0e6f42; --c2:#c38a24; --c3:#4d74b8;
+  --r1:#7fb295; --r2:#579a7a; --r3:#357d5c; --r4:#1d6044; --r5:#0d452f;
+  --grid-line:#d8e2d6; --tip-bg:#22322a; --tip-ink:#eef4ee;
+  --shadow:0 1px 2px rgba(28,43,34,.06),0 8px 24px -18px rgba(28,43,34,.35);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0d1410; --surface:#131b16; --surface2:#17211a; --card-edge:#22301f;
+    --ink:#e5ede5; --ink-soft:#a9baad; --ink-faint:#80927f;
+    --brand:#46a578; --brand-deep:#5cb98c; --brand-wash:#18271e;
+    --brass:#d0a355; --brass-wash:#2a2312;
+    --line:#25332a; --rule:#41564a;
+    --input-bg:#1b2318; --input-edge:#48512f; --input-focus:#46a578;
+    --pos:#55b287; --neg:#e0756b; --neg-wash:#301b17;
+    --chip:#1d2a20;
+    --c1:#238156; --c2:#bd8a35; --c3:#6889c8;
+    --r1:#2f5f48; --r2:#3f7d5f; --r3:#529c78; --r4:#68bc92; --r5:#93d8b4;
+    --grid-line:#1f2c23; --tip-bg:#e8f0e8; --tip-ink:#17241c;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 26px -18px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0d1410; --surface:#131b16; --surface2:#17211a; --card-edge:#22301f;
+  --ink:#e5ede5; --ink-soft:#a9baad; --ink-faint:#80927f;
+  --brand:#46a578; --brand-deep:#5cb98c; --brand-wash:#18271e;
+  --brass:#d0a355; --brass-wash:#2a2312;
+  --line:#25332a; --rule:#41564a;
+  --input-bg:#1b2318; --input-edge:#48512f; --input-focus:#46a578;
+  --pos:#55b287; --neg:#e0756b; --neg-wash:#301b17;
+  --chip:#1d2a20;
+  --c1:#238156; --c2:#bd8a35; --c3:#6889c8;
+  --r1:#2f5f48; --r2:#3f7d5f; --r3:#529c78; --r4:#68bc92; --r5:#93d8b4;
+  --grid-line:#1f2c23; --tip-bg:#e8f0e8; --tip-ink:#17241c;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 26px -18px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font:15.5px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+.serif{font-family:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif}
+a{color:var(--brand);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--input-focus);outline-offset:2px;border-radius:2px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+
+/* ---------- header ---------- */
+header.site{
+  position:sticky;top:0;z-index:40;background:var(--surface);
+  border-bottom:1px solid var(--line);box-shadow:var(--shadow);
+}
+.site-inner{max-width:1080px;margin:0 auto;padding:10px 20px 0;display:flex;flex-wrap:wrap;align-items:center;gap:4px 18px}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 0 8px;color:var(--ink)}
+.brand:hover{text-decoration:none}
+.brand svg{flex:none}
+.brand .bname{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:19px;letter-spacing:.045em;font-weight:600;white-space:nowrap}
+.brand .bsub{display:block;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-weight:500}
+nav.tabs{display:flex;gap:2px;margin-left:auto;overflow-x:auto;max-width:100%;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs a{
+  padding:10px 13px 12px;color:var(--ink-soft);font-size:14px;font-weight:600;white-space:nowrap;
+  border-bottom:3px solid transparent;border-radius:0;
+}
+nav.tabs a:hover{color:var(--ink);text-decoration:none}
+nav.tabs a[aria-current="page"]{color:var(--brand);border-bottom-color:var(--brand)}
+
+/* ---------- page scaffolding ---------- */
+main{max-width:1080px;margin:0 auto;padding:26px 20px 60px}
+.page{display:none}
+.page.active{display:block}
+.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass);font-weight:700}
+.page-head{margin:6px 0 4px}
+.page-head h1{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:clamp(24px,4vw,31px);line-height:1.18;margin:4px 0 6px;text-wrap:balance;font-weight:600}
+.page-head .lede{color:var(--ink-soft);max-width:62ch;margin:0 0 4px;font-size:16px}
+.editnote{color:var(--ink-faint);font-size:13px;margin:2px 0 0}
+.editnote .swatch{display:inline-block;width:12px;height:12px;border-radius:3px;background:var(--input-bg);border:1px solid var(--input-edge);vertical-align:-1px;margin-right:4px}
+
+/* why / how / when band */
+details.whw{margin:16px 0 0;border:1px solid var(--card-edge);border-radius:10px;background:var(--surface2)}
+details.whw summary{cursor:pointer;padding:11px 16px;font-weight:650;font-size:13.5px;color:var(--ink-soft);list-style:none;display:flex;align-items:center;gap:8px}
+details.whw summary::before{content:"";width:7px;height:7px;border-right:1.8px solid var(--ink-faint);border-bottom:1.8px solid var(--ink-faint);transform:rotate(-45deg);transition:transform .15s}
+details.whw[open] summary::before{transform:rotate(45deg)}
+details.whw summary::-webkit-details-marker{display:none}
+.whw-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;padding:4px 16px 16px}
+.whw-grid h3{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--brass);margin:0 0 5px}
+.whw-grid p{margin:0;font-size:13.8px;color:var(--ink-soft)}
+
+/* section cards */
+section.card{
+  background:var(--surface);border:1px solid var(--card-edge);border-radius:12px;
+  box-shadow:var(--shadow);padding:20px 22px 22px;margin:22px 0;
+}
+.sec-head{display:flex;align-items:baseline;gap:12px;margin:0 0 4px}
+.sec-num{
+  flex:none;font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  font-size:21px;font-weight:700;color:var(--brand);
+  border-bottom:3px double var(--rule);padding:0 2px 1px;line-height:1.15;
+}
+.sec-head h2{font-size:15px;letter-spacing:.08em;text-transform:uppercase;margin:0;font-weight:750}
+.sec-sub{color:var(--ink-faint);font-size:13.5px;margin:2px 0 14px}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px}
+@media (max-width:860px){.split{grid-template-columns:1fr}}
+
+/* inputs */
+.field{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:6px 14px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.field:last-child{border-bottom:0}
+.field>label{font-size:14px;color:var(--ink-soft);font-weight:550}
+.field .hint{grid-column:1/-1;font-size:12.5px;color:var(--ink-faint);margin:-3px 0 2px}
+.inwrap{position:relative;display:flex;align-items:center}
+.inwrap .affix{position:absolute;font-size:13.5px;color:var(--ink-faint);pointer-events:none}
+.inwrap .affix.pre{left:10px}
+.inwrap .affix.post{right:10px}
+input[type=text],input[type=search],select{
+  width:100%;font:inherit;font-size:14.5px;color:var(--ink);
+  background:var(--input-bg);border:1px solid var(--input-edge);border-radius:7px;
+  padding:7px 10px;min-height:36px;
+}
+.inwrap input.money{padding-left:24px;text-align:right;font-variant-numeric:tabular-nums}
+.inwrap input.pct{padding-right:26px;text-align:right;font-variant-numeric:tabular-nums}
+.inwrap input.num{text-align:right;font-variant-numeric:tabular-nums}
+input::placeholder{color:var(--ink-faint);opacity:.75}
+input:focus,select:focus{outline:2px solid var(--input-focus);outline-offset:0;border-color:var(--input-focus)}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--ink-faint) 50%),linear-gradient(135deg,var(--ink-faint) 50%,transparent 50%);background-position:calc(100% - 16px) 55%,calc(100% - 11px) 55%;background-size:5px 5px;background-repeat:no-repeat;padding-right:28px}
+
+/* results ledger */
+.ledger{background:var(--surface2);border:1px solid var(--card-edge);border-radius:10px;padding:14px 16px 6px}
+.ledger .ltitle{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--brass);font-weight:700;margin:0 0 6px}
+.lrow{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:7px 0;border-bottom:1px solid var(--line)}
+.lrow:last-child{border-bottom:0}
+.lrow .k{font-size:13.8px;color:var(--ink-soft)}
+.lrow .v{font-size:15.5px;font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lrow.total{border-top:1px solid var(--rule);border-bottom:3px double var(--rule);margin-top:2px}
+.lrow.total .k{font-weight:700;color:var(--ink)}
+.lrow.total .v{font-size:18px;font-weight:750}
+.v.neg{color:var(--neg)}
+.v.pos{color:var(--pos)}
+.bignum{font-size:26px;font-weight:750;font-variant-numeric:tabular-nums}
+
+/* callouts */
+.note{font-size:13.5px;color:var(--ink-soft);background:var(--surface2);border-left:3px solid var(--rule);padding:10px 14px;border-radius:0 8px 8px 0;margin:16px 0 0}
+.reminder{margin:26px 0 0;padding:18px 20px;border-top:1px solid var(--rule);border-bottom:3px double var(--rule);background:transparent}
+.reminder .rlabel{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--brass);font-weight:700;margin:0 0 6px}
+.reminder p{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:17.5px;line-height:1.5;margin:0;font-style:italic}
+.important{margin:18px 0 0;font-size:12.8px;color:var(--ink-faint);max-width:78ch}
+.important b{color:var(--ink-soft);letter-spacing:.08em}
+
+/* buttons */
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--card-edge);background:var(--surface2);color:var(--ink-soft);padding:7px 14px;font-size:13.5px;font-weight:600}
+button:hover{border-color:var(--rule);color:var(--ink)}
+button.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+button.primary:hover{background:var(--brand-deep);border-color:var(--brand-deep);color:#fff}
+button.linkish{border:0;background:none;color:var(--brand);padding:2px 4px;font-size:12.5px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0 0}
+
+/* charts */
+.chart-block{margin:16px 0 0}
+.chart-block svg{display:block;width:100%;height:auto}
+.chart-cap{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;font-size:13px;color:var(--ink-soft);margin:8px 0 0}
+.chip{display:inline-flex;align-items:center;gap:6px}
+.chip i{width:10px;height:10px;border-radius:3px;display:inline-block}
+#tip{position:fixed;z-index:90;pointer-events:none;background:var(--tip-bg);color:var(--tip-ink);font-size:12.5px;line-height:1.45;padding:7px 10px;border-radius:7px;box-shadow:var(--shadow);max-width:260px;opacity:0;transition:opacity .12s}
+#tip b{font-variant-numeric:tabular-nums}
+details.tbl{margin:10px 0 0;font-size:13.5px}
+details.tbl summary{cursor:pointer;color:var(--brand);font-weight:600;font-size:13px}
+details.tbl .twrap{overflow-x:auto;margin-top:8px}
+table.data{border-collapse:collapse;min-width:380px;width:100%}
+table.data th,table.data td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;white-space:nowrap}
+table.data th:first-child,table.data td:first-child{text-align:left}
+table.data th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);font-weight:650}
+
+/* home */
+.hero{padding:34px 0 8px;text-align:left;max-width:70ch}
+.hero .openph{font-size:11px;letter-spacing:.18em;color:var(--brass);text-transform:uppercase;font-weight:700}
+.hero h1{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:clamp(30px,5.4vw,44px);line-height:1.14;margin:10px 0 14px;font-weight:600;text-wrap:balance}
+.hero p{font-size:17px;color:var(--ink-soft);max-width:58ch}
+.toolgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:28px 0 0}
+@media (max-width:640px){.toolgrid{grid-template-columns:1fr}}
+.toolcard{background:var(--surface);border:1px solid var(--card-edge);border-radius:12px;box-shadow:var(--shadow);padding:18px 18px 16px;display:flex;flex-direction:column;gap:8px;color:var(--ink)}
+.toolcard:hover{text-decoration:none;border-color:var(--rule)}
+.toolcard .tc-kicker{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--brass);font-weight:700}
+.toolcard h2{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:20px;margin:0;font-weight:650}
+.toolcard p{margin:0;font-size:13.8px;color:var(--ink-soft);flex:1}
+.toolcard .go{font-size:13.5px;font-weight:700;color:var(--brand)}
+.homefacts{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin:30px 0 0}
+.homefacts .hf{border-top:1px solid var(--rule);padding-top:10px}
+.homefacts h3{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--brass);margin:0 0 5px}
+.homefacts p{margin:0;font-size:13.8px;color:var(--ink-soft)}
+
+/* stat tiles */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:18px 0 0}
+.tile{background:var(--surface);border:1px solid var(--card-edge);border-radius:12px;box-shadow:var(--shadow);padding:13px 16px}
+.tile .tk{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);font-weight:650}
+.tile .tv{font-size:22px;font-weight:750;font-variant-numeric:tabular-nums;margin-top:3px}
+.tile.hl{background:var(--brand-wash);border-color:var(--rule)}
+
+/* budget */
+.bud-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:16px 0 4px}
+.bud-meta label{display:block;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);font-weight:650;margin-bottom:4px}
+.subtabs{display:flex;gap:8px;margin:20px 0 0;border-bottom:1px solid var(--line);padding-bottom:0}
+.subtabs button{border:0;background:none;border-radius:0;padding:8px 4px 10px;margin-right:12px;font-size:14.5px;color:var(--ink-soft);border-bottom:3px solid transparent}
+.subtabs button.on{color:var(--brand);border-bottom-color:var(--brand);font-weight:700}
+details.bgroup{background:var(--surface);border:1px solid var(--card-edge);border-radius:12px;box-shadow:var(--shadow);margin:14px 0;overflow:hidden}
+details.bgroup summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:13px 18px;font-weight:700;font-size:13.5px;letter-spacing:.06em;text-transform:uppercase}
+details.bgroup summary::-webkit-details-marker{display:none}
+details.bgroup summary::before{content:"";width:7px;height:7px;border-right:2px solid var(--ink-faint);border-bottom:2px solid var(--ink-faint);transform:rotate(-45deg);flex:none;transition:transform .15s}
+details.bgroup[open] summary::before{transform:rotate(45deg)}
+details.bgroup summary .bsum{margin-left:auto;font-variant-numeric:tabular-nums;font-size:15px;color:var(--brand)}
+.bhead,.brow{display:grid;grid-template-columns:minmax(140px,1.5fr) 108px 138px 74px 108px minmax(90px,1fr);gap:8px;align-items:center;padding:5px 18px}
+.bhead{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);font-weight:700;border-bottom:1px solid var(--line);padding-bottom:7px}
+.brow{border-bottom:1px solid var(--line)}
+.brow:last-of-type{border-bottom:0}
+.brow .rlabel{font-size:13.8px;color:var(--ink-soft)}
+.brow input,.brow select{min-height:32px;padding:5px 8px;font-size:13.5px}
+.brow input.rname{background:transparent;border-color:transparent;color:var(--ink-soft);padding-left:0}
+.brow input.rname:hover,.brow input.rname:focus{background:var(--input-bg);border-color:var(--input-edge);padding-left:8px}
+.brow .rmonth{text-align:right;font-variant-numeric:tabular-nums;font-weight:650;font-size:14px;white-space:nowrap}
+.bfoot{display:flex;justify-content:space-between;align-items:baseline;padding:10px 18px;border-top:1px solid var(--rule);font-weight:700;font-size:13.5px;letter-spacing:.04em}
+.bfoot .v{font-variant-numeric:tabular-nums;font-size:16px;border-bottom:3px double var(--rule);padding:0 2px}
+@media (max-width:820px){
+  .bhead{display:none}
+  .brow{grid-template-columns:1fr 1fr;gap:6px 10px;padding:10px 16px}
+  .brow .rlabel,.brow input.rname{grid-column:1/-1;font-weight:650;color:var(--ink)}
+  .brow input,.brow select{width:100%}
+  .brow .rmonth{grid-column:2;text-align:right}
+  .brow [data-mob]{position:relative}
+  .brow [data-mob]::before{content:attr(data-mob);display:block;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:2px}
+}
+.paybar{position:sticky;bottom:0;z-index:30;margin:20px -20px -60px;padding:10px 20px calc(12px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--rule);display:flex;gap:8px 26px;flex-wrap:wrap;justify-content:center;font-size:13px;box-shadow:0 -6px 18px -12px rgba(0,0,0,.35)}
+.paybar span{color:var(--ink-faint)}
+.paybar b{font-variant-numeric:tabular-nums;font-size:14.5px}
+
+/* checkin */
+.cirow{display:grid;grid-template-columns:minmax(140px,1.4fr) 110px minmax(80px,.8fr) minmax(90px,1fr);gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid var(--line)}
+.cirow.h{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+.cirow .rlabel{font-size:13.8px;color:var(--ink-soft)}
+@media (max-width:640px){.cirow{grid-template-columns:1.2fr 1fr}.cirow .x2{display:none}}
+
+/* tax data editor */
+.taxgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.taxtable{width:100%;border-collapse:collapse}
+.taxtable th,.taxtable td{padding:4px 6px;font-size:13px;text-align:right;border-bottom:1px solid var(--line)}
+.taxtable th{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);text-align:right}
+.taxtable th:first-child,.taxtable td:first-child{text-align:left}
+.taxtable input{min-height:30px;padding:4px 6px;font-size:13px;text-align:right}
+.kvlist .field>label{font-size:13px}
+
+footer.site{border-top:1px solid var(--line);background:var(--surface2)}
+.foot-inner{max-width:1080px;margin:0 auto;padding:26px 20px 34px;font-size:13px;color:var(--ink-faint)}
+.foot-inner p{max-width:80ch;margin:0 0 10px}
+.foot-inner .brandline{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:15px;color:var(--ink-soft);font-style:italic;margin-bottom:14px}
+
+@media print{
+  header.site,footer.site,.toolbar,.paybar,#tip,.subtabs,details.whw{display:none!important}
+  body{background:#fff;color:#000}
+  section.card,details.bgroup{box-shadow:none;border-color:#bbb;break-inside:avoid}
+  main{max-width:none;padding:0}
+}
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="site-inner">
+    <a class="brand" href="#/home" aria-label="Money Is a Tool — home">
+      <svg width="34" height="34" viewBox="0 0 64 64" aria-hidden="true">
+        <rect x="2" y="2" width="60" height="60" rx="14" fill="#0e6f42"/>
+        <rect x="14" y="40" width="30" height="9" rx="4.5" transform="rotate(-45 14 40)" fill="#7fb295"/>
+        <circle cx="40" cy="24" r="15" fill="#f4d68a"/>
+        <circle cx="40" cy="24" r="15" fill="none" stroke="#96690f" stroke-width="2.5"/>
+        <text x="40" y="30.5" text-anchor="middle" font-family="Georgia,serif" font-size="19" font-weight="700" fill="#6b4a0a">$</text>
+      </svg>
+      <span>
+        <span class="bname">Money Is a Tool</span>
+        <span class="bsub">Companion Calculators</span>
+      </span>
+    </a>
+    <nav class="tabs" aria-label="Calculators">
+      <a href="#/home" data-route="home">Home</a>
+      <a href="#/budget" data-route="budget">Budget</a>
+      <a href="#/borrow" data-route="borrow">Borrowing</a>
+      <a href="#/savings" data-route="savings">Savings &amp; Goals</a>
+      <a href="#/tax" data-route="tax">Income &amp; Tax</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- ============================== HOME ============================== -->
+<div class="page" id="page-home">
+  <div class="hero">
+    <div class="openph">Opening Philosophy</div>
+    <h1>Money is a tool. The decisions we make with it help us build the life we want.</h1>
+    <p>These are the companion calculators to the guide <em>Money Is a Tool</em>. They will not tell you what to do. They exist to help you see your options clearly — the payment, the cost, the timeline, the tradeoff — so that you can make each decision yourself, with confidence.</p>
+  </div>
+
+  <div class="toolgrid">
+    <a class="toolcard" href="#/budget">
+      <span class="tc-kicker">Decision Tool</span>
+      <h2>My Household Budget</h2>
+      <p>See what money is coming in, what needs to go out, what you want to save, and what is left after your plan — with a Pay Period Check-In for every payday.</p>
+      <span class="go">Open the budget →</span>
+    </a>
+    <a class="toolcard" href="#/borrow">
+      <span class="tc-kicker">Decision Tool</span>
+      <h2>Borrowing &amp; Payment</h2>
+      <p>Understand the payment. Understand the cost. Compare two offers on the same basis, and then decide whether the payment fits your life.</p>
+      <span class="go">Open the calculator →</span>
+    </a>
+    <a class="toolcard" href="#/savings">
+      <span class="tc-kicker">Decision Tool</span>
+      <h2>Savings &amp; Goal</h2>
+      <p>Turn a financial goal into a number you can plan for. See what your saving may grow to, and what it takes to reach a target on your timeline.</p>
+      <span class="go">Open the calculator →</span>
+    </a>
+    <a class="toolcard" href="#/tax">
+      <span class="tc-kicker">Decision Tool</span>
+      <h2>Income &amp; Tax Planning</h2>
+      <p>Understand what may happen before tax time arrives — combine jobs, test an RRSP deduction, and plan a set-aside for self-employment income.</p>
+      <span class="go">Open the calculator →</span>
+    </a>
+  </div>
+
+  <div class="homefacts">
+    <div class="hf">
+      <h3>Yours, and private</h3>
+      <p>Everything is calculated on your own device and saved only in this browser. Your numbers are never sent anywhere.</p>
+    </div>
+    <div class="hf">
+      <h3>Works offline</h3>
+      <p>Once the page has loaded, it keeps working without an internet connection. On most phones you can add it to your home screen and use it like an app.</p>
+    </div>
+    <div class="hf">
+      <h3>Return to it</h3>
+      <p>Like the guide itself, these tools are meant to be returned to whenever life changes — a new job, a new goal, a new payment about to become part of your life.</p>
+    </div>
+  </div>
+
+  <p class="important" style="margin-top:34px"><b>IMPORTANT</b> — These are educational planning tools, not financial, tax, or lending advice. Actual lender calculations, investment returns, and tax results can differ. Always confirm important decisions using official disclosures, current CRA information, or a qualified professional.</p>
+</div>
+
+<!-- ============================== BUDGET ============================== -->
+<div class="page" id="page-budget">
+  <div class="page-head">
+    <div class="eyebrow">Decision Tool · My Household Budget</div>
+    <h1>My Monthly Household Budget</h1>
+    <p class="lede">A budget is not about restricting your life. It is about understanding where your money is going and making sure your financial decisions support the life you want to build.</p>
+    <p class="editnote"><span class="swatch"></span>Change the light input cells. The results update automatically.</p>
+  </div>
+
+  <details class="whw">
+    <summary>Why are we completing this — and when should we return to it?</summary>
+    <div class="whw-grid">
+      <div><h3>Why are we completing this?</h3><p>A budget helps us see what money is coming in, what needs to go out, what we want to save, and whether our choices still support our goals.</p></div>
+      <div><h3>How will this help us?</h3><p>Enter the amount, choose how often it happens, and enter how many times it will happen this month. The budget calculates <em>This Month</em> automatically. Example: paid $3,000 biweekly with 2 pays this month → Amount $3,000, Biweekly, 2 times = $6,000. For flexible spending such as groceries, choose <em>Monthly Budget</em> and enter the whole month’s amount.</p></div>
+      <div><h3>When should we return to it?</h3><p>Review your budget at the beginning of every month and whenever something changes. Use the Pay Period Check-In every payday so you know what must be covered before the next pay.</p></div>
+    </div>
+  </details>
+
+  <div class="subtabs" role="tablist">
+    <button class="on" id="bt-month" onclick="MIT.budgetView('month')">Monthly Budget</button>
+    <button id="bt-pay" onclick="MIT.budgetView('pay')">Pay Period Check-In</button>
+  </div>
+
+  <div id="bud-month-view">
+    <div class="bud-meta">
+      <div><label for="bm-month">Budget month</label><input type="text" id="bm-month" data-path="budget.month" placeholder="e.g. September 2026"></div>
+      <div><label for="bm-rev">Last reviewed</label><input type="text" id="bm-rev" data-path="budget.reviewed" placeholder="date"></div>
+      <div><label for="bm-next">Next pay date</label><input type="text" id="bm-next" data-path="budget.nextPay" placeholder="date"></div>
+    </div>
+
+    <h2 class="eyebrow" style="margin:20px 0 0">This month at a glance</h2>
+    <div class="tiles" id="bud-tiles"></div>
+
+    <div class="chart-block" id="bud-chart"></div>
+
+    <div id="bud-groups"></div>
+
+    <section class="card">
+      <div class="sec-head"><h2 style="text-transform:none;letter-spacing:.02em">My Monthly Review</h2></div>
+      <p class="sec-sub" style="margin-bottom:8px">A few questions to sit with once the numbers are in front of you.</p>
+      <ul style="margin:0;padding-left:20px;color:var(--ink-soft);font-size:13.8px;line-height:1.9">
+        <li>What changed this month?</li>
+        <li>Did I receive the income I expected?</li>
+        <li>Did any expense happen more or less often than I expected?</li>
+        <li>Am I still saving toward the goals that matter most to me?</li>
+        <li>If I have money left, what do I want it to help me achieve?</li>
+        <li>If I have a shortfall, what can I change before using more credit?</li>
+      </ul>
+      <div class="note">Avoid double counting credit cards: if groceries, gas, or dining out are already listed in their normal categories, do not count those purchases again as a credit card payment. Use the debt section for payments toward a balance carried from an earlier period.</div>
+    </section>
+
+    <div class="toolbar">
+      <button onclick="window.print()">Print this budget</button>
+      <button onclick="MIT.resetBudget()">Start a fresh budget…</button>
+    </div>
+  </div>
+
+  <div id="bud-pay-view" hidden>
+    <section class="card">
+      <div class="sec-head"><h2 style="text-transform:none;letter-spacing:.02em">Pay Period Check-In</h2></div>
+      <p class="sec-sub">Complete this every payday. Look at your due dates on the Monthly Budget and decide what needs to be covered before your next pay.</p>
+      <div class="bud-meta" style="margin-top:0">
+        <div><label for="pp-date">Pay date</label><input type="text" id="pp-date" data-path="budget.pay.date" placeholder="date"></div>
+        <div><label for="pp-next">Next pay date</label><input type="text" id="pp-next" data-path="budget.pay.next" placeholder="date"></div>
+      </div>
+      <div class="split" style="margin-top:14px">
+        <div>
+          <p class="ltitle eyebrow" style="margin:0 0 6px">Money available this pay</p>
+          <div id="pp-avail"></div>
+          <div class="lrow total"><span class="k">Total available</span><span class="v" id="pp-avail-total">$0.00</span></div>
+        </div>
+        <div>
+          <p class="ltitle eyebrow" style="margin:0 0 6px">What must be covered before next pay</p>
+          <div id="pp-need"></div>
+          <div class="lrow total"><span class="k">Total needed before next pay</span><span class="v" id="pp-need-total">$0.00</span></div>
+        </div>
+      </div>
+      <div class="ledger" style="margin-top:18px">
+        <div class="lrow total" style="border-top:0"><span class="k">Money left after this pay plan</span><span class="v" id="pp-left">$0.00</span></div>
+      </div>
+      <div class="note">If this number is negative, make a decision before the next pay. What can be reduced, delayed, or adjusted before a payment is missed or more credit is used? If there is money left, ask: what do I want this money to help me achieve?</div>
+    </section>
+  </div>
+
+  <div class="reminder">
+    <div class="rlabel">My Financial Reminder</div>
+    <p>Money is a tool. The decisions we make with it help us build the life we want.</p>
+  </div>
+
+  <div class="paybar" id="bud-paybar" aria-hidden="true"></div>
+</div>
+
+<!-- ============================== BORROWING ============================== -->
+<div class="page" id="page-borrow">
+  <div class="page-head">
+    <div class="eyebrow">Decision Tool · Borrowing With Purpose</div>
+    <h1>My Borrowing &amp; Payment Calculator</h1>
+    <p class="lede">Understand the payment. Understand the cost. Then decide whether it fits your life.</p>
+    <p class="editnote"><span class="swatch"></span>Change the light input cells. The results update automatically.</p>
+  </div>
+
+  <details class="whw">
+    <summary>Why are we completing this — and when should we return to it?</summary>
+    <div class="whw-grid">
+      <div><h3>Why are we completing this?</h3><p>Being approved tells you what a lender is willing to lend you. It does not tell you what you should borrow. This calculator helps you see what the debt may cost before you commit to it.</p></div>
+      <div><h3>How will this help us?</h3><p>Estimate a payment, see total interest and total repayment, compare two offers on the same basis, and test whether the payment fits the money you currently have available in your household budget.</p></div>
+      <div><h3>When should we return to it?</h3><p>Before financing a vehicle, taking a personal loan or line of credit, comparing lending offers, or adding any new payment to your household.</p></div>
+      <div><h3>How to read an interest rate</h3><p>A percentage alone is not enough to compare two loans. Ask what the quoted annual rate is, how often interest is compounded, whether fees apply, and how long you will be paying. The calculator converts the quoted rate and compounding into an <em>effective annual rate</em> so offers can be compared more fairly.</p></div>
+    </div>
+  </details>
+
+  <section class="card">
+    <div class="sec-head"><span class="sec-num">1</span><h2>What will this loan really cost me?</h2></div>
+    <div class="split">
+      <div>
+        <div class="field"><label for="bo-purpose">What are you borrowing for?</label>
+          <select id="bo-purpose" data-path="borrow.purpose"></select>
+          <span class="hint">Choose the closest option. If none fits, choose “Other / My own goal” and describe it.</span>
+        </div>
+        <div class="field" id="bo-otherwrap" hidden><label for="bo-other">If you chose Other, enter it here</label><input type="text" id="bo-other" data-path="borrow.purposeOther" placeholder="my own goal"></div>
+        <div class="field"><label for="bo-amt">Amount borrowed</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="bo-amt" data-path="borrow.amount" data-kind="money" inputmode="decimal"></span></div>
+        <div class="field"><label for="bo-rate">Quoted annual interest rate</label><span class="inwrap"><input type="text" class="pct" id="bo-rate" data-path="borrow.rate" data-kind="pct" inputmode="decimal"><span class="affix post">%</span></span></div>
+        <div class="field"><label for="bo-comp">How often is interest compounded?</label><select id="bo-comp" data-path="borrow.comp"></select></div>
+        <div class="field"><label for="bo-years">Loan term in years</label><span class="inwrap"><input type="text" class="num" id="bo-years" data-path="borrow.years" data-kind="num" inputmode="decimal"></span></div>
+        <div class="field"><label for="bo-freq">How often will you make payments?</label><select id="bo-freq" data-path="borrow.payFreq"></select></div>
+        <div class="field"><label for="bo-fees">Upfront fees not included in the loan</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="bo-fees" data-path="borrow.fees" data-kind="money" inputmode="decimal"></span></div>
+      </div>
+      <div>
+        <div class="ledger">
+          <p class="ltitle">Your estimated loan cost</p>
+          <div class="lrow"><span class="k">Effective annual rate</span><span class="v" id="bo-ear">—</span></div>
+          <div class="lrow"><span class="k">Estimated payment</span><span class="v bignum" id="bo-pmt">—</span></div>
+          <div class="lrow"><span class="k">Estimated total interest</span><span class="v" id="bo-int">—</span></div>
+          <div class="lrow"><span class="k">Estimated total loan payments</span><span class="v" id="bo-tot">—</span></div>
+          <div class="lrow total"><span class="k">Estimated total cost including upfront fees</span><span class="v" id="bo-totf">—</span></div>
+        </div>
+        <div class="chart-block" id="bo-chart"></div>
+        <div class="note">The payment is only one part of the decision. A lower payment may simply mean you are paying for longer. Always look at the total cost.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="sec-head"><span class="sec-num">2</span><h2>Compare two borrowing offers</h2></div>
+    <div class="split">
+      <div>
+        <p class="ltitle eyebrow" style="margin:0 0 4px">Offer A</p>
+        <div class="field"><label for="oa-amt">Amount financed</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="oa-amt" data-path="borrow.A.amount" data-kind="money" inputmode="decimal"></span></div>
+        <div class="field"><label for="oa-rate">Quoted annual rate</label><span class="inwrap"><input type="text" class="pct" id="oa-rate" data-path="borrow.A.rate" data-kind="pct" inputmode="decimal"><span class="affix post">%</span></span></div>
+        <div class="field"><label for="oa-comp">Compounding</label><select id="oa-comp" data-path="borrow.A.comp"></select></div>
+        <div class="field"><label for="oa-years">Term in years</label><span class="inwrap"><input type="text" class="num" id="oa-years" data-path="borrow.A.years" data-kind="num" inputmode="decimal"></span></div>
+        <div class="field"><label for="oa-freq">Payment frequency</label><select id="oa-freq" data-path="borrow.A.payFreq"></select></div>
+        <div class="field"><label for="oa-fees">Upfront fees</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="oa-fees" data-path="borrow.A.fees" data-kind="money" inputmode="decimal"></span></div>
+      </div>
+      <div>
+        <p class="ltitle eyebrow" style="margin:0 0 4px">Offer B</p>
+        <div class="field"><label for="ob-amt">Amount financed</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="ob-amt" data-path="borrow.B.amount" data-kind="money" inputmode="decimal"></span></div>
+        <div class="field"><label for="ob-rate">Quoted annual rate</label><span class="inwrap"><input type="text" class="pct" id="ob-rate" data-path="borrow.B.rate" data-kind="pct" inputmode="decimal"><span class="affix post">%</span></span></div>
+        <div class="field"><label for="ob-comp">Compounding</label><select id="ob-comp" data-path="borrow.B.comp"></select></div>
+        <div class="field"><label for="ob-years">Term in years</label><span class="inwrap"><input type="text" class="num" id="ob-years" data-path="borrow.B.years" data-kind="num" inputmode="decimal"></span></div>
+        <div class="field"><label for="ob-freq">Payment frequency</label><select id="ob-freq" data-path="borrow.B.payFreq"></select></div>
+        <div class="field"><label for="ob-fees">Upfront fees</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="ob-fees" data-path="borrow.B.fees" data-kind="money" inputmode="decimal"></span></div>
+      </div>
+    </div>
+    <div class="ledger" style="margin-top:20px">
+      <p class="ltitle">Side by side results</p>
+      <div style="overflow-x:auto"><table class="data" id="cmp-table"></table></div>
+      <div class="lrow total"><span class="k">Lower estimated total cost</span><span class="v" id="cmp-verdict">—</span></div>
+    </div>
+    <div class="chart-block" id="cmp-chart"></div>
+    <div class="note">Do not choose an offer because one rate or one payment looks smaller. Compare the amount financed, rate, compounding, fees, term, payment frequency, and total cost together.</div>
+  </section>
+
+  <section class="card">
+    <div class="sec-head"><span class="sec-num">3</span><h2>Was the sale really a sale?</h2></div>
+    <div class="split">
+      <div>
+        <div class="field"><label for="sa-price">Purchase price</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="sa-price" data-path="borrow.salePrice" data-kind="money" inputmode="decimal"></span></div>
+        <div class="field"><label for="sa-rate">Credit card annual interest rate</label><span class="inwrap"><input type="text" class="pct" id="sa-rate" data-path="borrow.saleRate" data-kind="pct" inputmode="decimal"><span class="affix post">%</span></span></div>
+        <div class="field"><label for="sa-months">How many months is the balance carried?</label><span class="inwrap"><input type="text" class="num" id="sa-months" data-path="borrow.saleMonths" data-kind="num" inputmode="numeric"></span></div>
+      </div>
+      <div>
+        <div class="ledger">
+          <div class="lrow"><span class="k">Estimated interest added</span><span class="v" id="sa-int">—</span></div>
+          <div class="lrow total"><span class="k">Estimated cost of the purchase</span><span class="v bignum" id="sa-cost">—</span></div>
+        </div>
+        <div class="note">Would you still have bought it if the price tag showed the estimated cost above? This simplified teaching example assumes the balance remains outstanding, with no new purchases or payments. Actual credit card interest is calculated according to the card agreement.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="sec-head"><span class="sec-num">4</span><h2>Does this payment fit my life?</h2></div>
+    <div class="split">
+      <div>
+        <div class="field"><label for="fit-left">Money left after my current monthly budget</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="fit-left" data-path="borrow.fitLeft" data-kind="money" inputmode="decimal"></span></div>
+        <div class="field"><label for="fit-pmt">New monthly payment I am considering</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="fit-pmt" inputmode="decimal"></span>
+        <span class="hint" id="fit-hint">Filled in from Section 1 as a monthly equivalent. <button class="linkish" id="fit-reset" hidden onclick="MIT.fitRelink()">Use my Section 1 estimate</button></span></div>
+      </div>
+      <div>
+        <div class="ledger">
+          <div class="lrow total" style="border-top:0"><span class="k">Money left after adding this payment</span><span class="v bignum" id="fit-out">—</span></div>
+        </div>
+        <div class="note">The calculator cannot tell you whether this payment is comfortable. Ask yourself what you would give up to make it. Would it reduce savings? Travel? Dining out? Flexibility? Only you can decide whether that tradeoff fits the life you want.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="toolbar"><button onclick="MIT.resetTool('borrow')">Reset this calculator…</button></div>
+
+  <div class="reminder">
+    <div class="rlabel">My Financial Reminder</div>
+    <p>Being approved tells me what a lender is willing to lend. I still decide what belongs in the life I want to build.</p>
+  </div>
+
+  <p class="important"><b>IMPORTANT</b> — This is an educational planning tool. Actual lender calculations may use different day-count rules, compounding conventions, fees, insurance, taxes, prepayment rules, promotional terms, or disclosure calculations. Always compare the lender’s written disclosure and ask questions before signing.</p>
+</div>
+
+<!-- ============================== SAVINGS ============================== -->
+<div class="page" id="page-savings">
+  <div class="page-head">
+    <div class="eyebrow">Decision Tool · Saving for Your Future</div>
+    <h1>My Savings &amp; Goal Calculator</h1>
+    <p class="lede">Turn a financial goal into a number you can plan for.</p>
+    <p class="editnote"><span class="swatch"></span>Change the light input cells. The results update automatically.</p>
+  </div>
+
+  <details class="whw">
+    <summary>Why are we completing this — and when should we return to it?</summary>
+    <div class="whw-grid">
+      <div><h3>Why are we completing this?</h3><p>Knowing that we want to save is a good beginning. Knowing how much we need to save, how long we have, and what our money may grow to gives the goal a plan.</p></div>
+      <div><h3>How will this help us?</h3><p>Use the calculator in two ways. First, see what your current savings plan may grow to. Second, start with a target amount and calculate approximately how much you need to save to reach it.</p></div>
+      <div><h3>When should we return to it?</h3><p>Whenever you set a new goal, change the amount you can save, receive a raise, change your timeline, or want to see how starting earlier or later may affect the result.</p></div>
+      <div><h3>About compound growth</h3><p>Compound growth means your money can earn a return, and over time you may also earn a return on the growth already added. The longer the money remains invested, the more time compounding has to work. The return you enter is an assumption, not a guarantee.</p></div>
+    </div>
+  </details>
+
+  <section class="card">
+    <div class="sec-head"><span class="sec-num">1</span><h2>What could my savings grow to?</h2></div>
+    <div class="split">
+      <div>
+        <div class="field"><label for="sg-purpose">What are you saving for?</label><select id="sg-purpose" data-path="savings.g1.purpose"></select>
+          <span class="hint">Choose the closest goal. If none fits, choose “Other / My own goal” and describe it.</span></div>
+        <div class="field" id="sg-otherwrap" hidden><label for="sg-other">If you chose Other, enter it here</label><input type="text" id="sg-other" data-path="savings.g1.purposeOther" placeholder="my own goal"></div>
+        <div class="field"><label for="sg-start">How much do you already have?</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="sg-start" data-path="savings.g1.start" data-kind="money" inputmode="decimal"></span></div>
+        <div class="field"><label for="sg-contrib">How much will you contribute each time?</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="sg-contrib" data-path="savings.g1.contrib" data-kind="money" inputmode="decimal"></span></div>
+        <div class="field"><label for="sg-freq">How often will you contribute?</label><select id="sg-freq" data-path="savings.g1.freq"></select></div>
+        <div class="field"><label for="sg-ret">Expected annual return</label><span class="inwrap"><input type="text" class="pct" id="sg-ret" data-path="savings.g1.ret" data-kind="pct" inputmode="decimal"><span class="affix post">%</span></span></div>
+        <div class="field"><label for="sg-years">How many years will you save?</label><span class="inwrap"><input type="text" class="num" id="sg-years" data-path="savings.g1.years" data-kind="num" inputmode="decimal"></span></div>
+      </div>
+      <div>
+        <div class="ledger">
+          <p class="ltitle">Your estimated result</p>
+          <div class="lrow"><span class="k">You put in</span><span class="v" id="sg-in">—</span></div>
+          <div class="lrow"><span class="k">Estimated growth</span><span class="v" id="sg-growth">—</span></div>
+          <div class="lrow total"><span class="k">Estimated future value</span><span class="v bignum" id="sg-fv">—</span></div>
+        </div>
+        <div class="note">Try changing the number of years. This is one of the easiest ways to see why starting earlier can make such a large difference.</div>
+      </div>
+    </div>
+    <div class="chart-block" id="sg-chart"></div>
+    <details class="tbl" id="sg-tablewrap"><summary>View the growth as a table</summary><div class="twrap"><table class="data" id="sg-table"></table></div></details>
+  </section>
+
+  <section class="card">
+    <div class="sec-head"><span class="sec-num">2</span><h2>I have a goal. How much do I need to save?</h2></div>
+    <div class="split">
+      <div>
+        <div class="field"><label for="gg-purpose">My goal</label><select id="gg-purpose" data-path="savings.g2.purpose"></select>
+          <span class="hint">Choose the closest goal. If none fits, choose “Other / My own goal” and describe it.</span></div>
+        <div class="field" id="gg-otherwrap" hidden><label for="gg-other">If you chose Other, enter it here</label><input type="text" id="gg-other" data-path="savings.g2.purposeOther" placeholder="my own goal"></div>
+        <div class="field"><label for="gg-target">My target amount</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="gg-target" data-path="savings.g2.target" data-kind="money" inputmode="decimal"></span></div>
+        <div class="field"><label for="gg-have">I already have</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="gg-have" data-path="savings.g2.have" data-kind="money" inputmode="decimal"></span></div>
+        <div class="field"><label for="gg-years">I want to reach it in (years)</label><span class="inwrap"><input type="text" class="num" id="gg-years" data-path="savings.g2.years" data-kind="num" inputmode="decimal"></span></div>
+        <div class="field"><label for="gg-ret">Expected annual return</label><span class="inwrap"><input type="text" class="pct" id="gg-ret" data-path="savings.g2.ret" data-kind="pct" inputmode="decimal"><span class="affix post">%</span></span></div>
+        <div class="field"><label for="gg-freq">I want to save</label><select id="gg-freq" data-path="savings.g2.freq"></select></div>
+      </div>
+      <div>
+        <div class="ledger">
+          <p class="ltitle">Your savings target</p>
+          <div class="lrow total" style="border-top:0"><span class="k">Approximate amount to save each time</span><span class="v bignum" id="gg-out">—</span></div>
+          <div class="lrow" id="gg-ctxrow" hidden><span class="k" id="gg-context"></span></div>
+        </div>
+        <div class="note">If this amount does not fit comfortably into your budget, that does not mean the goal has failed. Try changing the target date, target amount, or contribution frequency until you find a plan that works for your life.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="toolbar"><button onclick="MIT.resetTool('savings')">Reset this calculator…</button></div>
+
+  <div class="reminder">
+    <div class="rlabel">My Financial Reminder</div>
+    <p>A calculator gives me information. I still decide whether the goal, timeline, and commitment fit the life I want to build.</p>
+  </div>
+
+  <p class="important"><b>IMPORTANT</b> — This calculator is an educational planning tool. Actual investment returns can be higher or lower and may be negative. Taxes, fees, inflation, contribution limits, and account rules are not included unless you account for them separately.</p>
+</div>
+
+<!-- ============================== TAX ============================== -->
+<div class="page" id="page-tax">
+  <div class="page-head">
+    <div class="eyebrow">Decision Tool · Understanding the Canadian Tax System</div>
+    <h1>My Income &amp; Tax Planning Calculator</h1>
+    <p class="lede"><span id="tax-yearline">2026 Ontario prototype</span> · Educational planning estimate only. Understand what may happen before tax time arrives.</p>
+    <p class="editnote"><span class="swatch"></span>Change the light input cells. The results update automatically.</p>
+  </div>
+
+  <details class="whw">
+    <summary>Why are we completing this — and when should we return to it?</summary>
+    <div class="whw-grid">
+      <div><h3>Why are we completing this?</h3><p>Taxes affect the money available to our household throughout the year. Planning ahead can help us understand our income, deductions, withholding, and possible tax responsibility before filing season.</p></div>
+      <div><h3>How will this help us?</h3><p>Combine income from more than one job, add self-employment income, test an RRSP deduction, compare tax withheld with a simplified estimate, and plan how much of side income you may want to reserve.</p></div>
+      <div><h3>When should we return to it?</h3><p>When you start or change a job, add a second job, earn self-employment or side income, consider an RRSP contribution, receive a raise, or want to check whether your current withholding still makes sense.</p></div>
+      <div><h3>Check the tax year</h3><p>Brackets, rates, personal amounts, CPP and EI figures change from year to year. This calculator does not update them automatically — open <em>Tax year &amp; rate information</em> below and enter current CRA figures before using it for a different year.</p></div>
+    </div>
+  </details>
+
+  <section class="card">
+    <div class="sec-head"><span class="sec-num">1</span><h2>What does my income picture look like?</h2></div>
+    <div class="split">
+      <div>
+        <div class="field"><label for="tx-inc1">Employment income — Job 1</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="tx-inc1" data-path="tax.inc1" data-kind="money" inputmode="decimal"></span></div>
+        <div class="field"><label for="tx-inc2">Employment income — Job 2</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="tx-inc2" data-path="tax.inc2" data-kind="money" inputmode="decimal"></span></div>
+        <div class="field"><label for="tx-se">Net self-employment / side business income</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="tx-se" data-path="tax.se" data-kind="money" inputmode="decimal"></span></div>
+        <div class="field"><label for="tx-other">Other taxable income</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="tx-other" data-path="tax.other" data-kind="money" inputmode="decimal"></span></div>
+        <div class="field"><label for="tx-rrsp">RRSP deduction I am considering</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="tx-rrsp" data-path="tax.rrsp" data-kind="money" inputmode="decimal"></span></div>
+        <div class="field"><label for="tx-ded">Other deductions I want to test</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="tx-ded" data-path="tax.otherDed" data-kind="money" inputmode="decimal"></span></div>
+        <div class="field"><label for="tx-wh">Income tax already withheld</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="tx-wh" data-path="tax.withheld" data-kind="money" inputmode="decimal"></span></div>
+      </div>
+      <div>
+        <div class="ledger">
+          <p class="ltitle">Your simplified tax planning snapshot</p>
+          <div class="lrow"><span class="k">Total income entered</span><span class="v" id="tx-total">—</span></div>
+          <div class="lrow"><span class="k">Estimated taxable income after deductions</span><span class="v" id="tx-taxable">—</span></div>
+          <div class="lrow"><span class="k">Simplified federal income tax estimate</span><span class="v" id="tx-fed">—</span></div>
+          <div class="lrow"><span class="k">Simplified Ontario income tax + health premium estimate</span><span class="v" id="tx-on">—</span></div>
+          <div class="lrow"><span class="k">Simplified combined income tax estimate</span><span class="v" id="tx-comb">—</span></div>
+          <div class="lrow"><span class="k">Income tax already withheld</span><span class="v" id="tx-whv">—</span></div>
+          <div class="lrow total"><span class="k">Estimated difference</span><span class="v" id="tx-diff">—</span></div>
+        </div>
+        <p class="sec-sub" style="margin:10px 0 0" id="tx-rates"></p>
+      </div>
+    </div>
+    <div class="note">A positive Estimated Difference means the tax withheld entered is higher than this simplified tax estimate. A negative amount means the simplified estimate is higher than the tax withheld entered. This is not a predicted refund or balance owing.</div>
+
+    <div class="chart-block" id="tx-buckets"></div>
+    <details class="tbl" id="tx-bracketwrap"><summary>View the bracket-by-bracket table</summary><div class="twrap" id="tx-brackettbl"></div></details>
+
+    <details class="tbl"><summary>Payroll reference: CPP and EI on your employment income (computed separately — not part of the income tax estimate above)</summary>
+      <div class="twrap"><table class="data" id="tx-payroll"></table></div>
+    </details>
+  </section>
+
+  <section class="card">
+    <div class="sec-head"><span class="sec-num">2</span><h2>What could an RRSP deduction change?</h2></div>
+    <div class="split">
+      <div>
+        <div class="field"><label for="rr-amt">RRSP contribution to test</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="rr-amt" data-path="tax.rrspTest" data-kind="money" inputmode="decimal"></span>
+        <span class="hint">Uses the income and “other deductions” from Section 1.</span></div>
+      </div>
+      <div>
+        <div class="ledger">
+          <div class="lrow"><span class="k">Simplified estimated income tax without tested RRSP</span><span class="v" id="rr-without">—</span></div>
+          <div class="lrow"><span class="k">Simplified estimated income tax with tested RRSP</span><span class="v" id="rr-with">—</span></div>
+          <div class="lrow total"><span class="k">Illustrative tax difference</span><span class="v" id="rr-diff">—</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="note">This does not mean an RRSP contribution is automatically the best choice. It shows the possible tax effect in this simplified model. Your contribution room, retirement strategy, other accounts, and future tax situation still matter.</div>
+  </section>
+
+  <section class="card">
+    <div class="sec-head"><span class="sec-num">3</span><h2>I have more than one job</h2></div>
+    <div class="split">
+      <div>
+        <div class="field"><label for="j1-inc">Job 1 annual income</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="j1-inc" data-path="tax.j1" data-kind="money" inputmode="decimal"></span></div>
+        <div class="field"><label for="j1-wh">Job 1 tax withheld</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="j1-wh" data-path="tax.j1w" data-kind="money" inputmode="decimal"></span></div>
+        <div class="field"><label for="j2-inc">Job 2 annual income</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="j2-inc" data-path="tax.j2" data-kind="money" inputmode="decimal"></span></div>
+        <div class="field"><label for="j2-wh">Job 2 tax withheld</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="j2-wh" data-path="tax.j2w" data-kind="money" inputmode="decimal"></span></div>
+      </div>
+      <div>
+        <div class="ledger">
+          <div class="lrow"><span class="k">Combined annual income</span><span class="v" id="jj-inc">—</span></div>
+          <div class="lrow"><span class="k">Combined tax withheld</span><span class="v" id="jj-wh">—</span></div>
+          <div class="lrow"><span class="k">Simplified combined income tax estimate</span><span class="v" id="jj-est">—</span></div>
+          <div class="lrow total"><span class="k">Estimated difference</span><span class="v" id="jj-diff">—</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="note">If the simplified estimate is higher than the combined tax withheld, the difference is a signal to review your situation. For employees with more than one employer at the same time, TD1 forms matter, and you can ask an employer to deduct additional income tax if appropriate.</div>
+  </section>
+
+  <section class="card">
+    <div class="sec-head"><span class="sec-num">4</span><h2>Self-employment / side income set aside</h2></div>
+    <div class="split">
+      <div>
+        <div class="field"><label for="se-inc">Expected net self-employment income</label><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" id="se-inc" data-path="tax.seInc" data-kind="money" inputmode="decimal"></span></div>
+        <div class="field"><label for="se-pct">Planning percentage I want to set aside</label><span class="inwrap"><input type="text" class="pct" id="se-pct" data-path="tax.sePct" data-kind="pct" inputmode="decimal"><span class="affix post">%</span></span></div>
+      </div>
+      <div>
+        <div class="ledger">
+          <div class="lrow total" style="border-top:0"><span class="k">Amount to reserve based on my planning percentage</span><span class="v bignum" id="se-out">—</span></div>
+        </div>
+        <div class="note">This section does not tell you the exact percentage you should save. Self-employment can create income tax and CPP obligations, and your total household income affects the result. The purpose is to help you reserve money during the year instead of waiting until filing season.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="sec-head"><h2 style="text-transform:none;letter-spacing:.02em">Tax year &amp; rate information</h2></div>
+    <p class="sec-sub">Tax rules change from year to year and this calculator does not update these numbers automatically. Before using it for a different tax year or province, find the current figures on the CRA pages linked below and update them here. Changing only the percentages may not be enough — thresholds, personal amounts, CPP and EI limits can also change. <b>The Ontario health premium schedule and tax-reduction structure are built in and assume Ontario.</b></p>
+    <div class="bud-meta" style="margin-top:6px">
+      <div><label for="td-year">Tax year</label><input type="text" id="td-year" data-path="tax.data.year"></div>
+      <div><label for="td-prov">Province / territory</label><input type="text" id="td-prov" data-path="tax.data.province"></div>
+    </div>
+    <div class="taxgrid" style="margin-top:14px">
+      <div>
+        <p class="ltitle eyebrow" style="margin:0 0 6px">Federal tax brackets</p>
+        <table class="taxtable" id="td-fed"></table>
+      </div>
+      <div>
+        <p class="ltitle eyebrow" style="margin:0 0 6px">Provincial tax brackets</p>
+        <table class="taxtable" id="td-on"></table>
+      </div>
+      <div class="kvlist" id="td-other">
+        <p class="ltitle eyebrow" style="margin:0 0 6px">Other annual figures</p>
+      </div>
+    </div>
+    <div class="toolbar">
+      <button onclick="MIT.resetTaxData()">Restore 2026 Ontario figures</button>
+    </div>
+    <p class="important" style="margin-top:12px">Sources used for the built-in 2026 Ontario figures: CRA T4032-ON payroll deduction tables, CRA CPP contribution rates and maximums, and ESDC EI maximum insurable earnings. Find current figures at <a href="https://www.canada.ca/en/revenue-agency/services/tax/individuals/frequently-asked-questions-individuals/canadian-income-tax-rates-individuals-current-previous-years.html" rel="noopener" target="_blank">CRA: Tax rates and income brackets</a> and <a href="https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/payroll/t4032-payroll-deductions-tables.html" rel="noopener" target="_blank">CRA: Payroll deductions tables</a>.</p>
+  </section>
+
+  <div class="toolbar"><button onclick="MIT.resetTool('tax')">Reset this calculator…</button></div>
+
+  <div class="reminder">
+    <div class="rlabel">My Financial Reminder</div>
+    <p>Taxes are easier to manage when I think about them throughout the year, not only when it is time to file my return.</p>
+  </div>
+
+  <p class="important"><b>IMPORTANT</b> — This prototype is a simplified educational estimator for Ontario in 2026. It is not a tax return and it does not calculate every deduction, credit, benefit, surtax rule, family situation, business rule, or special tax provision. The final result should always be checked using current CRA information, certified tax software, or a qualified tax professional when appropriate.</p>
+</div>
+
+</main>
+
+<footer class="site">
+  <div class="foot-inner">
+    <p class="brandline">“Here is the information. Here are the consequences. Here are the tools. Now ask yourself: does this decision support the life you are trying to build?”</p>
+    <p>Companion calculators to <em>Money Is a Tool — A Household Financial Decision Guide</em>. Educational planning tools only — not financial, lending, investment, or tax advice. Your entries are saved only in this browser and never sent anywhere.</p>
+    <p><button onclick="MIT.clearAll()">Clear everything I have entered on this device…</button></p>
+  </div>
+</footer>
+
+<div id="tip" role="presentation"></div>
+<noscript><p style="max-width:640px;margin:30px auto;padding:0 20px">These calculators need JavaScript to run. Please enable JavaScript and reload the page.</p></noscript>
+
+<script>
+"use strict";
+/* =====================================================================
+   CALC-ENGINE-START  (pure functions — no DOM; mirrored from the
+   Money Is a Tool Excel workbooks; tested against their cached values)
+   ===================================================================== */
+const ENGINE = (() => {
+
+  const COMP_FREQ = { "Monthly": 12, "Semi annually": 2, "Annually": 1 };
+  const PAY_FREQ  = { "Weekly": 52, "Biweekly": 26, "Semi monthly": 24, "Monthly": 12 };
+  const SAVE_FREQ = { "Weekly": 52, "Biweekly": 26, "Semi monthly": 24, "Monthly": 12, "Annually": 1 };
+
+  // --- Borrowing & Payment ---
+  function loanCost(o) {
+    const m = COMP_FREQ[o.comp] ?? 12;
+    const p = PAY_FREQ[o.payFreq] ?? 12;
+    const amount = o.amount || 0, rate = o.rate || 0, years = o.years || 0, fees = o.fees || 0;
+    const ear = Math.pow(1 + rate / m, m) - 1;                       // K8
+    const rPer = Math.pow(1 + ear, 1 / p) - 1;                       // K9
+    const n = years * p;                                             // K10
+    let payment = null;
+    if (n > 0) payment = rPer === 0 ? amount / n : amount * rPer / (1 - Math.pow(1 + rPer, -n)); // K11
+    const totalPaid = payment == null ? null : payment * n;          // K12
+    const interest  = totalPaid == null ? null : totalPaid - amount; // K13
+    const totalCost = totalPaid == null ? null : totalPaid + fees;   // K14 / K28
+    const monthlyEquivalent = payment == null ? null : (p === 12 ? payment : payment * p / 12); // D87
+    return { ear, rPer, n, perYear: p, payment, totalPaid, interest, totalCost, monthlyEquivalent };
+  }
+  // Section 3: price carried on a credit card, compounded monthly  (K65/K66)
+  function saleCost(price, cardRate, months) {
+    const cost = (price || 0) * Math.pow(1 + (cardRate || 0) / 12, months || 0);
+    return { cost, interest: cost - (price || 0) };
+  }
+
+  // --- Savings & Goal ---
+  // Section 1 (per-period rate is annual/periods, as in the workbook)
+  function savingsGrow(o) {
+    const f = SAVE_FREQ[o.freq] ?? 12;
+    const start = o.start || 0, contrib = o.contrib || 0, ret = o.ret || 0, years = o.years || 0;
+    const r = f === 0 ? 0 : ret / f;            // K9
+    const n = years * f;                        // K10
+    const fvStart = start * Math.pow(1 + r, n); // K11
+    const fvContrib = r === 0 ? contrib * n : contrib * (Math.pow(1 + r, n) - 1) / r; // K12
+    const totalIn = start + contrib * n;        // K13
+    const fv = fvStart + fvContrib;             // K14
+    return { perYear: f, r, n, fvStart, fvContrib, totalIn, fv, growth: fv - totalIn };
+  }
+  // balance after y years of the same plan (for the chart)
+  function savingsAtYear(o, y) {
+    return savingsGrow({ ...o, years: y });
+  }
+  // Section 2 (K30–K35)
+  function savingsNeeded(o) {
+    const f = SAVE_FREQ[o.freq] ?? 12;
+    const target = o.target || 0, have = o.have || 0, ret = o.ret || 0, years = o.years || 0;
+    const r = f === 0 ? 0 : ret / f;            // K31
+    const n = years * f;                        // K32
+    const fvHave = have * Math.pow(1 + r, n);   // K33
+    const gap = Math.max(0, target - fvHave);   // K34
+    let per = 0;                                // K35
+    if (n > 0) per = r === 0 ? gap / n : gap * r / (Math.pow(1 + r, n) - 1);
+    return { perYear: f, r, n, fvHave, gap, per };
+  }
+
+  // --- Income & Tax (2026 Ontario prototype) ---
+  const TAX_DEFAULTS = () => ({
+    year: "2026", province: "Ontario",
+    fed:  [ { upTo: 58523, rate: 0.14 }, { upTo: 117045, rate: 0.205 }, { upTo: 181440, rate: 0.26 },
+            { upTo: 258482, rate: 0.29 }, { upTo: null, rate: 0.33 } ],
+    prov: [ { upTo: 53891, rate: 0.0505 }, { upTo: 107785, rate: 0.0915 }, { upTo: 150000, rate: 0.1116 },
+            { upTo: 220000, rate: 0.1216 }, { upTo: null, rate: 0.1316 } ],
+    fedBPAMax: 16452, fedBPAMin: 14829, fedBPAPhaseStart: 181440, fedBPAPhaseEnd: 258482,
+    provBPA: 12989, cea: 1501, provTaxRedBase: 300,
+    cppExempt: 3500, cppYMPE: 74600, cppYAMPE: 85000, cppRate: 0.0595, cpp2Rate: 0.04,
+    eiRate: 0.0163, eiMaxPremium: 1123.07, eiMaxInsurable: 68900
+  });
+
+  function progressiveTax(income, brackets) {
+    let tax = 0, prev = 0;
+    for (const b of brackets) {
+      const cap = b.upTo == null ? Infinity : b.upTo;
+      if (income > prev) tax += (Math.min(income, cap) - prev) * b.rate;
+      prev = cap;
+      if (income <= cap) break;
+    }
+    return tax;
+  }
+  function bracketPortions(income, brackets) {  // for the "buckets" view
+    const out = []; let prev = 0;
+    for (const b of brackets) {
+      const cap = b.upTo == null ? Infinity : b.upTo;
+      const amt = Math.max(0, Math.min(income, cap) - prev);
+      out.push({ from: prev, upTo: b.upTo, rate: b.rate, amount: amt, tax: amt * b.rate });
+      prev = cap;
+      if (income <= cap) break;
+    }
+    return out;
+  }
+  function marginalRate(income, brackets) {
+    let prev = 0;
+    for (const b of brackets) {
+      const cap = b.upTo == null ? Infinity : b.upTo;
+      if (income <= cap) return b.rate;
+      prev = cap;
+    }
+    return brackets.length ? brackets[brackets.length - 1].rate : 0;
+  }
+  function fedBPA(ti, td) {                     // K8-style phaseout
+    if (ti <= td.fedBPAPhaseStart) return td.fedBPAMax;
+    if (ti >= td.fedBPAPhaseEnd) return td.fedBPAMin;
+    return td.fedBPAMax - (ti - td.fedBPAPhaseStart) *
+      (td.fedBPAMax - td.fedBPAMin) / (td.fedBPAPhaseEnd - td.fedBPAPhaseStart);
+  }
+  function fedTax(ti, empIncome, td) {          // K9..K12
+    const gross = progressiveTax(ti, td.fed);
+    const credit = (fedBPA(ti, td) + Math.min(td.cea, empIncome)) * td.fed[0].rate;
+    return Math.max(0, gross - credit);
+  }
+  function ontTax(ti, td) {                     // L6..L10 (BPA credit, then Ontario tax reduction)
+    const gross = progressiveTax(ti, td.prov);
+    const afterBPA = Math.max(0, gross - td.provBPA * td.prov[0].rate);
+    const reduction = Math.min(afterBPA, Math.max(0, 2 * td.provTaxRedBase - afterBPA));
+    return Math.max(0, afterBPA - reduction);
+  }
+  function ontHealthPremium(ti) {               // L11 piecewise (Ontario health premium)
+    if (ti <= 20000) return 0;
+    if (ti <= 36000) return Math.min(300, 0.06 * (ti - 20000));
+    if (ti <= 48000) return Math.min(450, 300 + 0.06 * (ti - 36000));
+    if (ti <= 72000) return Math.min(600, 450 + 0.25 * (ti - 48000));
+    if (ti <= 200000) return Math.min(750, 600 + 0.25 * (ti - 72000));
+    return Math.min(900, 750 + 0.25 * (ti - 200000));
+  }
+  function combinedTax(ti, empIncome, td) {
+    const fed = fedTax(ti, empIncome, td);
+    const ont = ontTax(ti, td);
+    const ohp = ontHealthPremium(ti);
+    return { fed, ont, ohp, ontPlus: ont + ohp, total: fed + ont + ohp };
+  }
+  // Section 1 snapshot (K6..M10)
+  function taxSnapshot(i, td) {
+    const emp = (i.inc1 || 0) + (i.inc2 || 0);
+    const totalIncome = emp + (i.se || 0) + (i.other || 0);           // K6
+    const taxable = Math.max(0, totalIncome - (i.rrsp || 0) - (i.otherDed || 0)); // K7
+    const t = combinedTax(taxable, emp, td);
+    const withheld = i.withheld || 0;
+    return { totalIncome, taxable, emp, fed: t.fed, ont: t.ont, ohp: t.ohp,
+             ontPlus: t.ontPlus, combined: t.total, withheld, diff: withheld - t.total };
+  }
+  // Section 2 RRSP test (K38..M40) — uses total income and "other deductions" only
+  function rrspTest(i, td) {
+    const emp = (i.inc1 || 0) + (i.inc2 || 0);
+    const total = emp + (i.se || 0) + (i.other || 0);
+    const ti0 = Math.max(0, total - (i.otherDed || 0));
+    const ti1 = Math.max(0, total - (i.otherDed || 0) - (i.rrspTest || 0));
+    const without = combinedTax(ti0, emp, td).total;
+    const withR  = combinedTax(ti1, emp, td).total;
+    return { without, withR, diff: Math.max(0, without - withR) };
+  }
+  // Section 3 two jobs (K53..M54) — both incomes are employment income
+  function twoJobs(i, td) {
+    const combined = (i.j1 || 0) + (i.j2 || 0);
+    const withheld = (i.j1w || 0) + (i.j2w || 0);
+    const est = combinedTax(combined, combined, td).total;
+    return { combined, withheld, est, diff: withheld - est };
+  }
+  // Payroll reference (M6..M8) — CPP, CPP2, EI on employment income
+  function payroll(empIncome, td) {
+    const cpp  = Math.min(Math.max(0, empIncome - td.cppExempt), td.cppYMPE - td.cppExempt) * td.cppRate;
+    const cpp2 = Math.min(Math.max(0, empIncome - td.cppYMPE), td.cppYAMPE - td.cppYMPE) * td.cpp2Rate;
+    const ei   = Math.min(empIncome * td.eiRate, td.eiMaxPremium);
+    return { cpp, cpp2, ei };
+  }
+
+  // --- Household budget ---
+  // E-column rule: blank amount → blank; "Monthly Budget" → amount; else amount × times
+  function rowMonthly(amt, freq, times) {
+    if (amt == null) return null;
+    if (freq === "Monthly Budget") return amt;
+    if (times == null) return null;
+    return amt * times;
+  }
+
+  return { COMP_FREQ, PAY_FREQ, SAVE_FREQ, loanCost, saleCost, savingsGrow, savingsAtYear,
+           savingsNeeded, TAX_DEFAULTS, progressiveTax, bracketPortions, marginalRate, fedBPA,
+           fedTax, ontTax, ontHealthPremium, combinedTax, taxSnapshot, rrspTest, twoJobs,
+           payroll, rowMonthly };
+})();
+/* ===================== CALC-ENGINE-END ===================== */
+
+/* =====================================================================
+   App shell: state, persistence, rendering, charts
+   ===================================================================== */
+const MIT = (() => {
+  const E = ENGINE;
+  const $ = (s, el) => (el || document).querySelector(s);
+  const $$ = (s, el) => Array.from((el || document).querySelectorAll(s));
+
+  /* ---------- storage ---------- */
+  const KEY = "moneyisatool.v1";
+  const store = {
+    load() { try { return JSON.parse(localStorage.getItem(KEY)) || null; } catch (e) { return null; } },
+    save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} },
+    clear() { try { localStorage.removeItem(KEY); } catch (e) {} }
+  };
+
+  /* ---------- budget structure (verbatim from the workbook) ---------- */
+  const BUDGET_SECTIONS = [
+    { id: "income", title: "Income / Cash Inflows", kind: "income", rows: [
+      "Employment income 1", "Employment income 2", "Government benefits",
+      "Self employment / side income", "Other income 1*", "Other income 2*", "Other income 3*", "Other income 4*" ] },
+    { id: "housing", title: "Housing", kind: "expense", rows: [
+      "Mortgage / rent", "Property tax", "Home / tenant insurance", "Condo fees",
+      "Home maintenance / repairs", "Other housing 1*", "Other housing 2*", "Other housing 3*" ] },
+    { id: "utilities", title: "Utilities & Communications", kind: "expense", rows: [
+      "Electricity / water", "Natural gas", "Internet / WiFi", "Mobile phone 1", "Mobile phone 2",
+      "Cable / streaming", "Home equipment rental", "Other utilities 1*", "Other utilities 2*", "Other utilities 3*" ] },
+    { id: "food", title: "Food", kind: "expense", rows: [
+      "Groceries", "Eating out / takeout / delivery", "School / work meals",
+      "Other food 1*", "Other food 2*", "Other food 3*" ] },
+    { id: "transport", title: "Transportation", kind: "expense", rows: [
+      "Vehicle payment 1", "Vehicle payment 2", "Vehicle insurance", "Gas / charging",
+      "Repairs / maintenance", "Parking / tolls", "Public transit / rideshare",
+      "Other transportation 1*", "Other transportation 2*", "Other transportation 3*" ] },
+    { id: "children", title: "Children & Education", kind: "expense", rows: [
+      "Child care", "School / tuition", "Sports / activities 1", "Sports / activities 2",
+      "Lessons / clubs", "School supplies", "Other children / education 1*",
+      "Other children / education 2*", "Other children / education 3*" ] },
+    { id: "health", title: "Health & Insurance", kind: "expense", rows: [
+      "Medical / health insurance", "Prescriptions / medical", "Dental / vision",
+      "Life / disability insurance", "Other health 1*", "Other health 2*", "Other health 3*" ] },
+    { id: "debt", title: "Debt Payments", kind: "expense", rows: [
+      "Credit card carried balance 1", "Credit card carried balance 2", "Personal line of credit 1",
+      "Personal line of credit 2", "Personal loan", "Student loan",
+      "Other debt 1*", "Other debt 2*", "Other debt 3*" ] },
+    { id: "saveinvest", title: "Savings & Investing", kind: "savings", rows: [
+      "Emergency fund", "Short term goal savings", "TFSA / investments", "RRSP",
+      "RESP / RDSP / FHSA", "Other savings / investing 1*", "Other savings / investing 2*", "Other savings / investing 3*" ] },
+    { id: "personal", title: "Personal & Leisure", kind: "expense", rows: [
+      "Clothing / shoes", "Recreation / gym", "Entertainment", "Personal care / hygiene",
+      "Travel / vacation fund", "Gifts / celebrations", "Other personal / leisure 1*",
+      "Other personal / leisure 2*", "Other personal / leisure 3*" ] },
+    { id: "misc", title: "Miscellaneous", kind: "expense", rows: [
+      "Pet expenses", "Charitable giving", "Bank fees",
+      "Other miscellaneous 1*", "Other miscellaneous 2*", "Other miscellaneous 3*" ] }
+  ];
+  const BUDGET_FREQS = ["", "Weekly", "Biweekly", "Semi monthly", "Monthly", "Monthly Budget", "Quarterly", "Annual", "One time"];
+  const PP_AVAIL = ["Net pay / deposit 1", "Net pay / deposit 2", "Benefits / other income", "Other 1", "Other 2", "Other 3"];
+  const PP_NEED = ["Housing / utilities", "Food / groceries", "Transportation", "Debt payments",
+    "Savings / investing", "Children / education", "Health / insurance", "Personal / flexible spending",
+    "Other 1", "Other 2", "Other 3", "Other 4"];
+
+  const BORROW_PURPOSES = ["Vehicle", "Home / Mortgage", "Home renovation", "Education", "Debt consolidation",
+    "Major household purchase", "Emergency / unexpected expense", "Business / self employment", "Other / My own goal"];
+  const SAVE_PURPOSES = ["Emergency fund", "Vehicle", "Vacation / travel", "Home down payment", "Education",
+    "Wedding / celebration", "Starting a family", "Retirement", "Financial independence", "Major purchase", "Other / My own goal"];
+
+  /* ---------- default state (workbook defaults) ---------- */
+  function defaults() {
+    return {
+      borrow: {
+        purpose: "Vehicle", purposeOther: "", amount: 30000, rate: 0.06, comp: "Monthly", years: 5, payFreq: "Monthly", fees: 0,
+        A: { amount: 30000, rate: 0.0399, comp: "Monthly", years: 5, payFreq: "Monthly", fees: 0 },
+        B: { amount: 28000, rate: 0.0599, comp: "Monthly", years: 5, payFreq: "Monthly", fees: 0 },
+        salePrice: 100, saleRate: 0.20, saleMonths: 12,
+        fitLeft: 1200, fitPayment: null   // null → linked to Section 1 estimate
+      },
+      savings: {
+        g1: { purpose: "Retirement", purposeOther: "", start: 0, contrib: 50, freq: "Monthly", ret: 0.07, years: 45 },
+        g2: { purpose: "Home down payment", purposeOther: "", target: 25000, have: 5000, years: 5, ret: 0.04, freq: "Monthly" }
+      },
+      tax: {
+        inc1: 65000, inc2: 0, se: 0, other: 0, rrsp: 0, otherDed: 0, withheld: 11000,
+        rrspTest: 5000, j1: 45000, j1w: 5500, j2: 25000, j2w: 1800, seInc: 20000, sePct: 0.30,
+        data: E.TAX_DEFAULTS()
+      },
+      budget: {
+        month: "", reviewed: "", nextPay: "", view: "month",
+        rows: {}, pay: { date: "", next: "", avail: {}, need: {} }
+      }
+    };
+  }
+  let state = deepMerge(defaults(), store.load() || {});
+
+  function deepMerge(base, over) {
+    if (Array.isArray(base) || typeof base !== "object" || base === null) return over !== undefined ? over : base;
+    const out = {};
+    for (const k of new Set([...Object.keys(base), ...Object.keys(over || {})])) {
+      out[k] = deepMerge(base[k], over ? over[k] : undefined);
+    }
+    return out;
+  }
+  let saveTimer = null;
+  function persist() { clearTimeout(saveTimer); saveTimer = setTimeout(() => store.save(state), 250); }
+
+  /* ---------- formatting & parsing ---------- */
+  const moneyFmt = new Intl.NumberFormat("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  function money(v, opts) {
+    if (v == null || !isFinite(v)) return "—";
+    const neg = v < -0.004;
+    const s = "$" + moneyFmt.format(Math.abs(v));
+    return (neg ? "−" : "") + s;
+  }
+  function moneyCompact(v) {
+    if (v == null || !isFinite(v)) return "—";
+    const a = Math.abs(v);
+    if (a >= 1e6) return "$" + (v / 1e6).toFixed(v % 1e6 === 0 ? 0 : 1) + "M";
+    if (a >= 10000) return "$" + Math.round(v / 1000) + "k";
+    if (a >= 1000) return "$" + (v / 1000).toFixed(1) + "k";
+    return "$" + Math.round(v);
+  }
+  function pct(v, dp) {
+    if (v == null || !isFinite(v)) return "—";
+    return (v * 100).toFixed(dp == null ? 2 : dp) + "%";
+  }
+  function setMoney(id, v) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = money(v);
+    el.classList.toggle("neg", v != null && isFinite(v) && v < -0.004);
+  }
+  function parseNum(str) {
+    if (str == null) return null;
+    const s = String(str).replace(/[$,%\s,]/g, "").replace(/−/g, "-");
+    if (s === "" || s === "-" || s === ".") return null;
+    const v = Number(s);
+    return isFinite(v) ? v : null;
+  }
+
+  /* ---------- generic binding ---------- */
+  function getPath(path) { return path.split(".").reduce((o, k) => (o == null ? o : o[k]), state); }
+  function setPath(path, v) {
+    const ks = path.split("."); let o = state;
+    for (let i = 0; i < ks.length - 1; i++) { if (o[ks[i]] == null) o[ks[i]] = {}; o = o[ks[i]]; }
+    o[ks[ks.length - 1]] = v;
+  }
+  function bindAll(root) {
+    $$("[data-path]", root).forEach(el => {
+      if (el.__bound) return; el.__bound = true;
+      const kind = el.dataset.kind || (el.tagName === "SELECT" ? "select" : "text");
+      const write = () => {
+        let v = el.value;
+        if (kind === "money" || kind === "num") { v = parseNum(el.value); if (v != null && kind === "money" && v < 0) v = 0; }
+        if (kind === "pct") { const n = parseNum(el.value); v = n == null ? null : n / 100; }
+        setPath(el.dataset.path, v);
+        persist(); recalcActive();
+      };
+      el.addEventListener(el.tagName === "SELECT" ? "change" : "input", write);
+      if (kind === "money") el.addEventListener("blur", () => { const v = getPath(el.dataset.path); if (v != null) el.value = moneyFmt.format(v); });
+      if (kind === "pct") el.addEventListener("blur", () => { const v = getPath(el.dataset.path); if (v != null) el.value = stripZeros((v * 100).toFixed(3)); });
+    });
+  }
+  function stripZeros(s) { return s.replace(/\.?0+$/, "").replace(/(\.\d*[1-9])0+$/, "$1"); }
+  function refreshInputs(root) {
+    $$("[data-path]", root).forEach(el => {
+      const v = getPath(el.dataset.path);
+      const kind = el.dataset.kind || (el.tagName === "SELECT" ? "select" : "text");
+      if (document.activeElement === el) return;
+      if (kind === "money") el.value = v == null ? "" : moneyFmt.format(v);
+      else if (kind === "pct") el.value = v == null ? "" : stripZeros((v * 100).toFixed(3));
+      else if (kind === "num") el.value = v == null ? "" : String(v);
+      else el.value = v == null ? "" : v;
+    });
+  }
+  function fillSelect(el, options, blankLabel) {
+    el.innerHTML = options.map(o => `<option value="${esc(o)}">${esc(o === "" ? (blankLabel || "—") : o)}</option>`).join("");
+  }
+  function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
+  /* ---------- tooltip ---------- */
+  const tip = () => $("#tip");
+  function showTip(html, x, y) {
+    const t = tip(); t.innerHTML = html; t.style.opacity = "1";
+    const pad = 14, w = t.offsetWidth, h = t.offsetHeight;
+    let left = x + pad, top = y + pad;
+    if (left + w > innerWidth - 8) left = x - w - pad;
+    if (top + h > innerHeight - 8) top = y - h - pad;
+    t.style.left = left + "px"; t.style.top = top + "px";
+  }
+  function hideTip() { tip().style.opacity = "0"; }
+  function hookTips(root) {
+    $$("[data-tip]", root).forEach(el => {
+      el.addEventListener("pointermove", e => showTip(el.dataset.tip, e.clientX, e.clientY));
+      el.addEventListener("pointerleave", hideTip);
+    });
+  }
+
+  /* ---------- SVG helpers ---------- */
+  const SVGNS = "http://www.w3.org/2000/svg";
+  function svgEl(w, h) {
+    return `<svg viewBox="0 0 ${w} ${h}" role="img" preserveAspectRatio="xMidYMid meet">`;
+  }
+  function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+  /* ================= BORROW ================= */
+  function renderBorrow() {
+    const b = state.borrow;
+    $("#bo-otherwrap").hidden = b.purpose !== "Other / My own goal";
+    const r = E.loanCost(b);
+    $("#bo-ear").textContent = pct(r.ear);
+    setMoney("bo-pmt", r.payment);
+    setMoney("bo-int", r.interest);
+    setMoney("bo-tot", r.totalPaid);
+    setMoney("bo-totf", r.totalCost); // K14 = total payments + upfront fees
+    // cost composition bar
+    drawCostBar($("#bo-chart"), [{ label: null, amount: b.amount || 0, interest: r.interest, fees: b.fees || 0 }]);
+    // compare offers
+    const ra = E.loanCost(b.A), rb = E.loanCost(b.B);
+    $("#cmp-table").innerHTML = `
+      <tr><th></th><th>Offer A</th><th>Offer B</th></tr>
+      <tr><td>Effective annual rate</td><td>${pct(ra.ear)}</td><td>${pct(rb.ear)}</td></tr>
+      <tr><td>Estimated payment</td><td>${money(ra.payment)}</td><td>${money(rb.payment)}</td></tr>
+      <tr><td>Estimated total interest</td><td>${money(ra.interest)}</td><td>${money(rb.interest)}</td></tr>
+      <tr><td>Estimated total cost</td><td>${money(ra.totalCost)}</td><td>${money(rb.totalCost)}</td></tr>`;
+    let verdict = "—";
+    if (ra.totalCost != null && rb.totalCost != null)
+      verdict = ra.totalCost < rb.totalCost ? "Offer A" : (rb.totalCost < ra.totalCost ? "Offer B" : "Same estimated cost");
+    $("#cmp-verdict").textContent = verdict;
+    drawCostBar($("#cmp-chart"), [
+      { label: "Offer A", amount: b.A.amount || 0, interest: ra.interest, fees: b.A.fees || 0 },
+      { label: "Offer B", amount: b.B.amount || 0, interest: rb.interest, fees: b.B.fees || 0 }
+    ]);
+    // sale
+    const s = E.saleCost(b.salePrice, b.saleRate, b.saleMonths);
+    setMoney("sa-int", s.interest);
+    setMoney("sa-cost", s.cost);
+    // fit
+    const linked = b.fitPayment == null;
+    const fitPmt = linked ? r.monthlyEquivalent : b.fitPayment;
+    const fp = $("#fit-pmt");
+    if (document.activeElement !== fp) fp.value = fitPmt == null ? "" : moneyFmt.format(fitPmt);
+    $("#fit-reset").hidden = linked;
+    setMoney("fit-out", (b.fitLeft == null || fitPmt == null) ? null : b.fitLeft - fitPmt);
+  }
+
+  // horizontal stacked cost bars: amount (c1) + interest (c2) + fees (c3), 2px gaps
+  function drawCostBar(mount, rows) {
+    if (!mount) return;
+    const usable = rows.filter(r => r.interest != null);
+    if (!usable.length) { mount.innerHTML = ""; return; }
+    const W = 640, rowH = 34, gapY = 26, padL = rows.some(r => r.label) ? 64 : 0, padR = 8;
+    const H = rows.length * rowH + (rows.length - 1) * (gapY - rowH > 0 ? 0 : 8) + 6;
+    const max = Math.max(...rows.map(r => (r.amount || 0) + Math.max(0, r.interest || 0) + (r.fees || 0)), 1);
+    const c1 = cssVar("--c1"), c2 = cssVar("--c2"), c3 = cssVar("--c3");
+    let y = 2, html = svgEl(W, H);
+    for (const r of rows) {
+      const segs = [
+        { v: r.amount || 0, c: c1, n: "Borrowed" },
+        { v: Math.max(0, r.interest || 0), c: c2, n: "Interest" },
+        { v: r.fees || 0, c: c3, n: "Upfront fees" }
+      ];
+      let x = padL;
+      if (r.label) html += `<text x="0" y="${y + 20}" font-size="12.5" font-weight="600" fill="${cssVar("--ink-soft")}">${esc(r.label)}</text>`;
+      for (const s of segs) {
+        if (s.v <= 0) continue;
+        const w = Math.max(2, (W - padL - padR) * s.v / max) - 2;
+        html += `<rect x="${x}" y="${y + 6}" width="${Math.max(1, w)}" height="18" rx="4" fill="${s.c}" data-tip="${esc(s.n)}: <b>${esc(money(s.v))}</b>"/>`;
+        x += w + 2;
+      }
+      y += rowH;
+    }
+    html += "</svg>";
+    const cap = rows.map(r => {
+      const bits = [`<span class="chip"><i style="background:${c1}"></i>Borrowed ${money(r.amount)}</span>`,
+        `<span class="chip"><i style="background:${c2}"></i>Interest ${money(Math.max(0, r.interest || 0))}</span>`];
+      if (r.fees) bits.push(`<span class="chip"><i style="background:${c3}"></i>Fees ${money(r.fees)}</span>`);
+      return (r.label ? `<b style="margin-right:2px">${esc(r.label)}:</b>` : "") + bits.join(" ");
+    }).join("<br>");
+    mount.innerHTML = html + `<div class="chart-cap" style="display:block">${cap}</div>`;
+    hookTips(mount);
+  }
+
+  function fitRelink() { state.borrow.fitPayment = null; persist(); renderBorrow(); }
+
+  /* ================= SAVINGS ================= */
+  function renderSavings() {
+    const g1 = state.savings.g1, g2 = state.savings.g2;
+    $("#sg-otherwrap").hidden = g1.purpose !== "Other / My own goal";
+    $("#gg-otherwrap").hidden = g2.purpose !== "Other / My own goal";
+    const r = E.savingsGrow(g1);
+    setMoney("sg-in", r.totalIn);
+    setMoney("sg-growth", r.growth);
+    setMoney("sg-fv", r.fv);
+    drawGrowthChart($("#sg-chart"), g1);
+    // milestone table
+    const yrs = Math.max(0, Math.round(g1.years || 0));
+    let rows = "<tr><th>Year</th><th>You put in</th><th>Estimated value</th><th>Estimated growth</th></tr>";
+    const step = yrs > 30 ? 10 : (yrs > 12 ? 5 : (yrs > 5 ? 2 : 1));
+    for (let y = 0; y <= yrs; y += step) rows += milestoneRow(g1, y);
+    if (yrs % step !== 0) rows += milestoneRow(g1, yrs);
+    $("#sg-table").innerHTML = rows;
+    // goal
+    const n = E.savingsNeeded(g2);
+    setMoney("gg-out", n.per);
+    const ctx = $("#gg-context"), ctxRow = $("#gg-ctxrow");
+    const showCtx = (g2.have || 0) > 0 && n.n > 0;
+    ctx.textContent = showCtx ? `What you already have could grow to about ${money(n.fvHave)} by itself, leaving ${money(n.gap)} to save.` : "";
+    ctxRow.hidden = !showCtx;
+  }
+  function milestoneRow(g1, y) {
+    const s = E.savingsAtYear(g1, y);
+    return `<tr><td>${y}</td><td>${money(s.totalIn)}</td><td>${money(s.fv)}</td><td>${money(s.growth)}</td></tr>`;
+  }
+
+  function drawGrowthChart(mount, g1) {
+    if (!mount) return;
+    const years = Math.max(0, g1.years || 0);
+    if (years <= 0) { mount.innerHTML = ""; return; }
+    const W = 680, H = 240, padL = 52, padR = 116, padT = 14, padB = 26;
+    const N = Math.max(1, Math.round(years));
+    const pts = [];
+    for (let y = 0; y <= N; y++) { const s = E.savingsAtYear(g1, y); pts.push({ y, fv: s.fv, inn: s.totalIn }); }
+    const maxV = Math.max(...pts.map(p => p.fv), 1);
+    const X = y => padL + (W - padL - padR) * (y / N);
+    const Y = v => padT + (H - padT - padB) * (1 - v / maxV);
+    const c1 = cssVar("--c1"), c2 = cssVar("--c2"), grid = cssVar("--grid-line"), inkSoft = cssVar("--ink-soft"), inkFaint = cssVar("--ink-faint");
+    let html = svgEl(W, H);
+    // grid: 4 horizontal lines + labels
+    for (let i = 0; i <= 3; i++) {
+      const v = maxV * i / 3, gy = Y(v);
+      html += `<line x1="${padL}" y1="${gy}" x2="${W - padR}" y2="${gy}" stroke="${grid}" stroke-width="1"/>`;
+      html += `<text x="${padL - 6}" y="${gy + 4}" text-anchor="end" font-size="11" fill="${inkFaint}">${esc(moneyCompact(v))}</text>`;
+    }
+    // x ticks
+    const xs = N > 30 ? 10 : (N > 12 ? 5 : (N > 5 ? 2 : 1));
+    for (let y = 0; y <= N; y += xs) {
+      html += `<text x="${X(y)}" y="${H - 8}" text-anchor="middle" font-size="11" fill="${inkFaint}">${y}</text>`;
+    }
+    // area under estimated value
+    const line = key => pts.map((p, i) => (i ? "L" : "M") + X(p.y).toFixed(1) + " " + Y(p[key]).toFixed(1)).join(" ");
+    html += `<path d="${line("fv")} L ${X(N).toFixed(1)} ${Y(0)} L ${X(0)} ${Y(0)} Z" fill="${c1}" opacity="0.10"/>`;
+    html += `<path d="${line("inn")}" fill="none" stroke="${c2}" stroke-width="2"/>`;
+    html += `<path d="${line("fv")}" fill="none" stroke="${c1}" stroke-width="2.4"/>`;
+    // endpoint markers + direct labels (nudge apart if close)
+    const eV = pts[pts.length - 1];
+    let yV = Y(eV.fv), yI = Y(eV.inn);
+    if (yI - yV < 16) yI = yV + 16;
+    html += `<circle cx="${X(N)}" cy="${Y(eV.fv)}" r="4" fill="${c1}"/>`;
+    html += `<circle cx="${X(N)}" cy="${Y(eV.inn)}" r="4" fill="${c2}"/>`;
+    html += `<text x="${X(N) + 8}" y="${yV + 4}" font-size="12" font-weight="650" fill="${inkSoft}">Est. value</text>`;
+    html += `<text x="${X(N) + 8}" y="${yI + 4}" font-size="12" fill="${inkSoft}">You put in</text>`;
+    // hover overlay
+    html += `<rect id="sg-hover" x="${padL}" y="${padT}" width="${W - padL - padR}" height="${H - padT - padB}" fill="transparent"/>`;
+    html += `<line id="sg-cross" x1="0" y1="${padT}" x2="0" y2="${H - padB}" stroke="${inkFaint}" stroke-width="1" stroke-dasharray="3 3" opacity="0"/>`;
+    html += "</svg>";
+    mount.innerHTML = html + `<div class="chart-cap">
+      <span class="chip"><i style="background:${c1}"></i>Estimated value</span>
+      <span class="chip"><i style="background:${c2}"></i>You put in</span>
+      <span style="color:${inkFaint}">Years →</span></div>`;
+    const svg = $("svg", mount), hover = $("#sg-hover", mount), cross = $("#sg-cross", mount);
+    hover.addEventListener("pointermove", e => {
+      const rect = svg.getBoundingClientRect();
+      const fx = (e.clientX - rect.left) * (W / rect.width);
+      const y = Math.round(Math.min(N, Math.max(0, (fx - padL) / (W - padL - padR) * N)));
+      const p = pts[y];
+      cross.setAttribute("x1", X(y)); cross.setAttribute("x2", X(y)); cross.setAttribute("opacity", "1");
+      showTip(`Year ${y}<br>Estimated value: <b>${money(p.fv)}</b><br>You put in: <b>${money(p.inn)}</b><br>Growth: <b>${money(p.fv - p.inn)}</b>`, e.clientX, e.clientY);
+    });
+    hover.addEventListener("pointerleave", () => { cross.setAttribute("opacity", "0"); hideTip(); });
+  }
+
+  /* ================= TAX ================= */
+  function renderTax() {
+    const t = state.tax, td = t.data;
+    $("#tax-yearline").textContent = `${esc(td.year)} ${esc(td.province)} prototype`;
+    const s = E.taxSnapshot(t, td);
+    setMoney("tx-total", s.totalIncome); setMoney("tx-taxable", s.taxable);
+    setMoney("tx-fed", s.fed); setMoney("tx-on", s.ontPlus);
+    setMoney("tx-comb", s.combined);
+    setMoney("tx-whv", s.withheld);
+    setMoney("tx-diff", s.diff);
+    // marginal / average teaching line
+    if (s.taxable > 0) {
+      const m = E.marginalRate(s.taxable, td.fed) + E.marginalRate(s.taxable, td.prov);
+      const avg = s.combined / s.taxable;
+      $("#tx-rates").innerHTML = `For understanding: your next dollar of taxable income falls into a combined bracket rate of about <b>${pct(m, 1)}</b>, while your average rate on taxable income is about <b>${pct(avg, 1)}</b>. Moving into a higher bracket never taxes every dollar at the higher rate.`;
+    } else $("#tx-rates").textContent = "";
+    drawBuckets($("#tx-buckets"), s.taxable, td);
+    drawBracketTable($("#tx-brackettbl"), s.taxable, td);
+    // payroll reference
+    const p = E.payroll(s.emp, td);
+    $("#tx-payroll").innerHTML = `
+      <tr><th></th><th>Estimated</th><th>Based on</th></tr>
+      <tr><td>CPP contribution</td><td>${money(p.cpp)}</td><td>${pct(td.cppRate)} of employment income between ${money(td.cppExempt)} and ${money(td.cppYMPE)}</td></tr>
+      <tr><td>CPP2 contribution</td><td>${money(p.cpp2)}</td><td>${pct(td.cpp2Rate)} between ${money(td.cppYMPE)} and ${money(td.cppYAMPE)}</td></tr>
+      <tr><td>EI premium</td><td>${money(p.ei)}</td><td>${pct(td.eiRate)} of employment income, up to ${money(td.eiMaxPremium)}</td></tr>`;
+    // RRSP test
+    const r = E.rrspTest(t, td);
+    setMoney("rr-without", r.without); setMoney("rr-with", r.withR); setMoney("rr-diff", r.diff);
+    // two jobs
+    const j = E.twoJobs(t, td);
+    setMoney("jj-inc", j.combined); setMoney("jj-wh", j.withheld); setMoney("jj-est", j.est); setMoney("jj-diff", j.diff);
+    // set aside
+    setMoney("se-out", (t.seInc || 0) * (t.sePct || 0));
+  }
+
+  function drawBuckets(mount, taxable, td) {
+    if (!mount) return;
+    if (!taxable) { mount.innerHTML = ""; return; }
+    const ramps = [cssVar("--r1"), cssVar("--r2"), cssVar("--r3"), cssVar("--r4"), cssVar("--r5")];
+    const inkSoft = cssVar("--ink-soft"), inkFaint = cssVar("--ink-faint");
+    const W = 680, rowH = 46, H = rowH * 2 + 26;
+    const rows = [
+      { name: "Federal", parts: E.bracketPortions(taxable, td.fed) },
+      { name: esc(td.province), parts: E.bracketPortions(taxable, td.prov) }
+    ];
+    let html = svgEl(W, H), y = 4;
+    const padL = 66, padR = 8;
+    for (const row of rows) {
+      html += `<text x="0" y="${y + 20}" font-size="12.5" font-weight="600" fill="${inkSoft}">${row.name}</text>`;
+      let x = padL;
+      row.parts.forEach((p, i) => {
+        if (p.amount <= 0) return;
+        const w = Math.max(2, (W - padL - padR) * p.amount / taxable) - 2;
+        const to = p.upTo == null ? "and up" : "to " + moneyCompact(p.upTo);
+        html += `<rect x="${x}" y="${y + 6}" width="${Math.max(1, w)}" height="20" rx="4" fill="${ramps[Math.min(i, ramps.length - 1)]}" data-tip="${esc(pct(p.rate))} bucket (${esc(moneyCompact(p.from))} ${esc(to)})<br>${esc(money(p.amount))} of income → <b>${esc(money(p.tax))}</b> tax"/>`;
+        if (w > 46) { const r100 = p.rate * 100, dp = Math.abs(r100 - Math.round(r100)) < 1e-9 ? 0 : 2;
+          html += `<text x="${x + w / 2}" y="${y + 40}" text-anchor="middle" font-size="10.5" fill="${inkFaint}">${esc(pct(p.rate, dp))}</text>`; }
+        x += w + 2;
+      });
+      y += rowH;
+    }
+    html += "</svg>";
+    mount.innerHTML = `<p class="sec-sub" style="margin:16px 0 4px">Think of your income as filling buckets — each bucket of taxable income is taxed at its own rate. Hover a bucket for the detail.</p>` + html;
+    hookTips(mount);
+  }
+  function drawBracketTable(mount, taxable, td) {
+    if (!mount) return;
+    if (!taxable) { mount.innerHTML = "<p class='sec-sub'>Enter income above to see the bracket detail.</p>"; return; }
+    const mk = (name, parts) => `
+      <p class="ltitle eyebrow" style="margin:10px 0 4px">${name}</p>
+      <table class="data"><tr><th>Bucket</th><th>Rate</th><th>Income in bucket</th><th>Tax</th></tr>` +
+      parts.filter(p => p.amount > 0).map(p =>
+        `<tr><td>${money(p.from)} ${p.upTo == null ? "and up" : "– " + money(p.upTo)}</td><td>${pct(p.rate)}</td><td>${money(p.amount)}</td><td>${money(p.tax)}</td></tr>`).join("") +
+      `</table>`;
+    mount.innerHTML = mk("Federal", E.bracketPortions(taxable, td.fed)) + mk(esc(td.province), E.bracketPortions(taxable, td.prov));
+  }
+
+  /* ---- tax data editor ---- */
+  function buildTaxEditor() {
+    const td = state.tax.data;
+    const bracketTable = (el, key) => {
+      el.innerHTML = `<tr><th>Bracket</th><th>Taxable income up to</th><th>Rate %</th></tr>` +
+        td[key].map((b, i) => `<tr><td>${i + 1}</td>
+          <td>${b.upTo == null ? '<span style="color:var(--ink-faint)">No upper limit</span>'
+            : `<input type="text" inputmode="decimal" data-tax="${key}.${i}.upTo" value="${b.upTo}">`}</td>
+          <td><input type="text" inputmode="decimal" data-tax="${key}.${i}.rate" value="${stripZeros((b.rate * 100).toFixed(3))}"></td></tr>`).join("");
+    };
+    bracketTable($("#td-fed"), "fed");
+    bracketTable($("#td-on"), "prov");
+    const OTHERS = [
+      ["fedBPAMax", "Federal basic personal amount — maximum"], ["fedBPAMin", "Federal basic personal amount — minimum"],
+      ["fedBPAPhaseStart", "Federal BPA phase-out starts at"], ["fedBPAPhaseEnd", "Federal BPA phase-out ends at"],
+      ["provBPA", "Provincial basic personal amount"], ["cea", "Canada employment amount — maximum"],
+      ["provTaxRedBase", "Ontario tax reduction basic amount"], ["cppExempt", "CPP basic exemption"],
+      ["cppYMPE", "CPP YMPE"], ["cppYAMPE", "CPP YAMPE"], ["cppRate", "CPP employee rate %"],
+      ["cpp2Rate", "CPP2 employee rate %"], ["eiRate", "EI employee rate %"],
+      ["eiMaxPremium", "EI maximum employee premium"], ["eiMaxInsurable", "EI maximum insurable earnings"]
+    ];
+    const host = $("#td-other");
+    host.querySelectorAll(".field").forEach(n => n.remove());
+    for (const [k, label] of OTHERS) {
+      const isPct = /Rate|rate %/.test(label) || k.endsWith("Rate");
+      const val = isPct ? stripZeros((td[k] * 100).toFixed(3)) : td[k];
+      host.insertAdjacentHTML("beforeend",
+        `<div class="field"><label>${esc(label)}</label><span class="inwrap"><input type="text" inputmode="decimal" data-tax="${k}" value="${val}">${isPct ? '<span class="affix post">%</span>' : ""}</span></div>`);
+    }
+    $$("[data-tax]").forEach(el => {
+      if (el.__bound) return; el.__bound = true;
+      el.addEventListener("input", () => {
+        const path = el.dataset.tax.split(".");
+        const v = parseNum(el.value);
+        if (v == null) return;
+        if (path.length === 3) {
+          const [key, i, field] = path;
+          state.tax.data[key][+i][field] = field === "rate" ? v / 100 : v;
+        } else {
+          const k = path[0];
+          const isPct = k.endsWith("Rate") || k === "cpp2Rate";
+          state.tax.data[k] = isPct ? v / 100 : v;
+        }
+        persist(); renderTax();
+      });
+    });
+  }
+  function resetTaxData() {
+    if (!confirm("Restore the built-in 2026 Ontario tax figures?")) return;
+    state.tax.data = E.TAX_DEFAULTS(); persist(); buildTaxEditor(); renderTax();
+  }
+
+  /* ================= BUDGET ================= */
+  function budgetRowState(id) {
+    if (!state.budget.rows[id]) state.budget.rows[id] = { label: null, amt: null, freq: "", times: null, note: "" };
+    return state.budget.rows[id];
+  }
+  function buildBudget() {
+    const host = $("#bud-groups");
+    let html = "";
+    for (const sec of BUDGET_SECTIONS) {
+      html += `<details class="bgroup" ${sec.id === "income" ? "open" : ""} id="bg-${sec.id}">
+        <summary>${esc(sec.title)}<span class="bsum" id="bsum-${sec.id}">$0.00</span></summary>
+        <div class="bhead"><span>Income / Expense</span><span>Amount</span><span>How often?</span><span>× this month</span><span style="text-align:right">This month</span><span>Due / note</span></div>`;
+      sec.rows.forEach((label, i) => {
+        const id = sec.id + "-" + i;
+        const editable = label.endsWith("*");
+        const clean = label.replace(/\*$/, "");
+        html += `<div class="brow" data-row="${id}">
+          ${editable
+            ? `<input type="text" class="rname" data-b="${id}.label" placeholder="${esc(clean)}" aria-label="${esc(clean)}">`
+            : `<span class="rlabel">${esc(clean)}</span>`}
+          <span data-mob="Amount"><span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" data-b="${id}.amt" inputmode="decimal" aria-label="${esc(clean)} amount"></span></span>
+          <span data-mob="How often?"><select data-b="${id}.freq" aria-label="${esc(clean)} frequency"></select></span>
+          <span data-mob="× this month"><input type="text" class="num" data-b="${id}.times" inputmode="decimal" aria-label="${esc(clean)} times this month"></span>
+          <span class="rmonth" id="bm-${id}"></span>
+          <span data-mob="Due / note"><input type="text" data-b="${id}.note" aria-label="${esc(clean)} due date or note" placeholder=""></span>
+        </div>`;
+      });
+      const totalLabel = sec.kind === "income" ? "Total income / cash inflows" : "Total " + sec.title.toLowerCase();
+      html += `<div class="bfoot"><span>${esc(totalLabel)}</span><span class="v" id="btot-${sec.id}">$0.00</span></div></details>`;
+    }
+    host.innerHTML = html;
+    // fill selects + bind
+    $$("select[data-b]", host).forEach(el => fillSelect(el, BUDGET_FREQS, "choose…"));
+    $$("[data-b]", host).forEach(el => {
+      const [id, field] = el.dataset.b.split(".");
+      const rs = budgetRowState(id);
+      const isMoney = field === "amt", isNum = field === "times";
+      // initial value
+      if (isMoney) el.value = rs.amt == null ? "" : moneyFmt.format(rs.amt);
+      else if (isNum) el.value = rs.times == null ? "" : String(rs.times);
+      else if (field === "label") el.value = rs.label || "";
+      else if (field === "freq") el.value = rs.freq || "";
+      else el.value = rs[field] || "";
+      el.addEventListener(el.tagName === "SELECT" ? "change" : "input", () => {
+        const r = budgetRowState(id);
+        if (isMoney) { const v = parseNum(el.value); r.amt = v == null ? null : Math.max(0, v); }
+        else if (isNum) { const v = parseNum(el.value); r.times = v == null ? null : Math.min(8, Math.max(0, v)); }
+        else r[field] = el.value;
+        persist(); renderBudget();
+      });
+      if (isMoney) el.addEventListener("blur", () => { const r = budgetRowState(id); el.value = r.amt == null ? "" : moneyFmt.format(r.amt); });
+      if (isNum) el.addEventListener("blur", () => { const r = budgetRowState(id); el.value = r.times == null ? "" : String(r.times); });
+    });
+    // pay-period check-in
+    const availHost = $("#pp-avail"), needHost = $("#pp-need");
+    availHost.innerHTML = `<div class="cirow h"><span>Source</span><span>Amount</span><span class="x2">Notes</span><span class="x2"></span></div>` +
+      PP_AVAIL.map((l, i) => `<div class="cirow"><span class="rlabel">${esc(l)}</span>
+        <span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" data-pp="avail.${i}.amt" inputmode="decimal" aria-label="${esc(l)}"></span>
+        <span class="x2" style="grid-column:3/5"><input type="text" data-pp="avail.${i}.note" aria-label="${esc(l)} note" placeholder=""></span></div>`).join("");
+    needHost.innerHTML = `<div class="cirow h"><span>Item</span><span>Amount</span><span class="x2">Due date</span><span class="x2">Notes</span></div>` +
+      PP_NEED.map((l, i) => `<div class="cirow"><span class="rlabel">${esc(l)}</span>
+        <span class="inwrap"><span class="affix pre">$</span><input type="text" class="money" data-pp="need.${i}.amt" inputmode="decimal" aria-label="${esc(l)}"></span>
+        <span class="x2"><input type="text" data-pp="need.${i}.due" aria-label="${esc(l)} due date"></span>
+        <span class="x2"><input type="text" data-pp="need.${i}.note" aria-label="${esc(l)} note"></span></div>`).join("");
+    $$("[data-pp]").forEach(el => {
+      const [list, i, field] = el.dataset.pp.split(".");
+      const bag = state.budget.pay[list];
+      if (!bag[i]) bag[i] = {};
+      const isMoney = field === "amt";
+      el.value = bag[i][field] == null ? "" : (isMoney ? moneyFmt.format(bag[i][field]) : bag[i][field]);
+      el.addEventListener("input", () => {
+        if (!state.budget.pay[list][i]) state.budget.pay[list][i] = {};
+        state.budget.pay[list][i][field] = isMoney ? parseNum(el.value) : el.value;
+        persist(); renderBudget();
+      });
+      if (isMoney) el.addEventListener("blur", () => { const v = state.budget.pay[list][i][field]; el.value = v == null ? "" : moneyFmt.format(v); });
+    });
+  }
+  function renderBudget() {
+    const totals = {};
+    let income = 0, expenses = 0, savings = 0;
+    for (const sec of BUDGET_SECTIONS) {
+      let t = 0;
+      sec.rows.forEach((label, i) => {
+        const id = sec.id + "-" + i;
+        const r = state.budget.rows[id] || {};
+        const v = E.rowMonthly(r.amt == null ? null : r.amt, r.freq, r.times == null ? null : r.times);
+        const cell = document.getElementById("bm-" + id);
+        if (cell) cell.textContent = v == null ? "" : money(v);
+        t += v || 0;
+      });
+      totals[sec.id] = t;
+      const st = document.getElementById("btot-" + sec.id), sm = document.getElementById("bsum-" + sec.id);
+      if (st) st.textContent = money(t);
+      if (sm) sm.textContent = money(t);
+      if (sec.kind === "income") income += t; else if (sec.kind === "savings") savings += t; else expenses += t;
+    }
+    const left = income - expenses - savings;
+    $("#bud-tiles").innerHTML = tile("Income this month", income) + tile("Expenses this month", expenses) +
+      tile("Savings & investing", savings) + tile("Money left after my plan", left, true);
+    $("#bud-paybar").innerHTML = `<span>Income <b>${money(income)}</b></span><span>Expenses <b>${money(expenses)}</b></span>
+      <span>Savings <b>${money(savings)}</b></span><span>Left after plan <b class="${left < -0.004 ? "v neg" : "v pos"}" style="border:0">${money(left)}</b></span>`;
+    drawBudgetChart($("#bud-chart"), totals, income);
+    // check-in
+    const sum = list => Object.values(state.budget.pay[list]).reduce((a, r) => a + (r && r.amt != null ? r.amt : 0), 0);
+    const av = sum("avail"), nd = sum("need");
+    $("#pp-avail-total").textContent = money(av);
+    $("#pp-need-total").textContent = money(nd);
+    const ppl = $("#pp-left"); ppl.textContent = money(av - nd); ppl.classList.toggle("neg", av - nd < -0.004);
+  }
+  function tile(k, v, hl) {
+    const negC = v < -0.004 ? " style='color:var(--neg)'" : (hl ? " style='color:var(--pos)'" : "");
+    return `<div class="tile${hl ? " hl" : ""}"><div class="tk">${esc(k)}</div><div class="tv"${negC}>${money(v)}</div></div>`;
+  }
+  function drawBudgetChart(mount, totals, income) {
+    if (!mount) return;
+    const cats = BUDGET_SECTIONS.filter(s => s.kind !== "income").map(s => ({ name: s.title, v: totals[s.id] || 0, kind: s.kind }))
+      .filter(c => c.v > 0).sort((a, b) => b.v - a.v);
+    if (!cats.length) { mount.innerHTML = ""; return; }
+    const c1 = cssVar("--c1"), c2 = cssVar("--c2"), inkSoft = cssVar("--ink-soft"), inkFaint = cssVar("--ink-faint");
+    const W = 680, rowH = 26, padL = 210, padR = 86, H = cats.length * rowH + 6;
+    const max = Math.max(...cats.map(c => c.v), 1);
+    let html = svgEl(W, H), y = 2;
+    for (const c of cats) {
+      const w = Math.max(2, (W - padL - padR) * c.v / max);
+      const col = c.kind === "savings" ? c2 : c1;
+      const shr = income > 0 ? ` · ${(c.v / income * 100).toFixed(0)}% of income` : "";
+      html += `<text x="${padL - 8}" y="${y + 15}" text-anchor="end" font-size="12" fill="${inkSoft}">${esc(c.name)}</text>`;
+      html += `<rect x="${padL}" y="${y + 4}" width="${w}" height="14" rx="4" fill="${col}" data-tip="${esc(c.name)}: <b>${esc(money(c.v))}</b>${esc(shr)}"/>`;
+      html += `<text x="${padL + w + 6}" y="${y + 15}" font-size="11.5" fill="${inkFaint}">${esc(moneyCompact(c.v))}</text>`;
+      y += rowH;
+    }
+    html += "</svg>";
+    mount.innerHTML = `<p class="sec-sub" style="margin:14px 0 4px">Where the month goes</p>` + html +
+      `<div class="chart-cap"><span class="chip"><i style="background:${c1}"></i>Spending</span><span class="chip"><i style="background:${c2}"></i>Savings &amp; investing</span></div>`;
+    hookTips(mount);
+  }
+  function budgetView(v) {
+    state.budget.view = v; persist();
+    $("#bud-month-view").hidden = v !== "month";
+    $("#bud-pay-view").hidden = v !== "pay";
+    $("#bt-month").classList.toggle("on", v === "month");
+    $("#bt-pay").classList.toggle("on", v === "pay");
+    $("#bud-paybar").style.display = v === "month" ? "" : "none";
+  }
+  function resetBudget() {
+    if (!confirm("Start a fresh budget? This clears every budget row and the Pay Period Check-In on this device.")) return;
+    state.budget = defaults().budget; persist(); buildBudget(); renderBudget(); budgetView("month"); refreshInputs($("#page-budget"));
+  }
+
+  /* ================= shell ================= */
+  const ROUTES = ["home", "budget", "borrow", "savings", "tax"];
+  const TITLES = { home: "Money Is a Tool Calculators", budget: "Household Budget — Money Is a Tool",
+    borrow: "Borrowing & Payment — Money Is a Tool", savings: "Savings & Goal — Money Is a Tool", tax: "Income & Tax — Money Is a Tool" };
+  function route() {
+    let r = (location.hash || "#/home").replace(/^#\/?/, "").split("?")[0];
+    if (!ROUTES.includes(r)) r = "home";
+    ROUTES.forEach(x => { const p = $("#page-" + x); if (p) p.classList.toggle("active", x === r); });
+    $$("nav.tabs a").forEach(a => a.dataset.route === r ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
+    document.title = TITLES[r];
+    recalcActive();
+    window.scrollTo({ top: 0 });
+  }
+  function recalcActive() {
+    const active = $(".page.active");
+    if (!active) return;
+    if (active.id === "page-borrow") renderBorrow();
+    else if (active.id === "page-savings") renderSavings();
+    else if (active.id === "page-tax") renderTax();
+    else if (active.id === "page-budget") renderBudget();
+  }
+  function resetTool(which) {
+    const names = { borrow: "Borrowing & Payment calculator", savings: "Savings & Goal calculator", tax: "Income & Tax calculator (your tax-year figures are kept)" };
+    if (!confirm(`Reset the ${names[which]} to its starting example numbers?`)) return;
+    const d = defaults();
+    if (which === "tax") { const keep = state.tax.data; state.tax = d.tax; state.tax.data = keep; }
+    else state[which] = d[which];
+    persist(); refreshInputs($("#page-" + which)); recalcActive();
+  }
+  function clearAll() {
+    if (!confirm("Clear everything you have entered on this device? This resets all four calculators and the budget.")) return;
+    store.clear(); state = defaults();
+    buildStatic(); route();
+  }
+
+  function buildStatic() {
+    // selects
+    fillSelect($("#bo-purpose"), BORROW_PURPOSES);
+    ["#bo-comp", "#oa-comp", "#ob-comp"].forEach(s => fillSelect($(s), Object.keys(E.COMP_FREQ)));
+    ["#bo-freq", "#oa-freq", "#ob-freq"].forEach(s => fillSelect($(s), Object.keys(E.PAY_FREQ)));
+    fillSelect($("#sg-purpose"), SAVE_PURPOSES); fillSelect($("#gg-purpose"), SAVE_PURPOSES);
+    ["#sg-freq", "#gg-freq"].forEach(s => fillSelect($(s), Object.keys(E.SAVE_FREQ)));
+    bindAll(document);
+    refreshInputs(document);
+    buildTaxEditor();
+    buildBudget();
+    budgetView(state.budget.view || "month");
+    // section-1 payment override field
+    const fp = $("#fit-pmt");
+    if (!fp.__bound) {
+      fp.__bound = true;
+      fp.addEventListener("input", () => { state.borrow.fitPayment = parseNum(fp.value); persist();
+        const linked = state.borrow.fitPayment == null; $("#fit-reset").hidden = linked;
+        const r = E.loanCost(state.borrow);
+        const p = linked ? r.monthlyEquivalent : state.borrow.fitPayment;
+        setMoney("fit-out", (state.borrow.fitLeft == null || p == null) ? null : state.borrow.fitLeft - p);
+      });
+      fp.addEventListener("blur", () => renderBorrow());
+    }
+  }
+
+  addEventListener("hashchange", route);
+  addEventListener("DOMContentLoaded", () => { buildStatic(); route(); });
+
+  // offline support (no-op where service workers are unavailable, e.g. previews)
+  if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
+    addEventListener("load", () => { navigator.serviceWorker.register("./sw.js").catch(() => {}); });
+  }
+
+  return { budgetView, resetBudget, resetTool, resetTaxData, clearAll, fitRelink };
+})();
+</script>
+</body>
+</html>
