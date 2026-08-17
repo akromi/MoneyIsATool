@@ -1,5 +1,7 @@
 # Money Is a Tool — Companion Calculators
 
+**Live site:** https://akromi.github.io/MoneyIsATool/
+
 A single-page web app that brings the four Excel companion calculators from
 *Money Is a Tool — A Household Financial Decision Guide* to the web, ready for
 the QR codes in the published edition to point at.
@@ -35,11 +37,14 @@ verbatim.
 
 ## Hosting
 
-Everything is static — any static host works.
+Everything is static — any static host works. There is no build step.
 
-**GitHub Pages:** Settings → Pages → deploy from branch, root folder. The
-`.nojekyll` file is included. The app is a single `index.html` plus the PWA
-files; there is no build step.
+**GitHub Pages (how this repo deploys):** the
+`.github/workflows/pages.yml` workflow publishes the site to the `gh-pages`
+branch on every push. Pages itself is configured once in
+**Settings → Pages → Build and deployment → Deploy from a branch →
+`gh-pages` / root**. After that, every push redeploys automatically. The
+`.nojekyll` file is included.
 
 ## Faithfulness to the workbooks
 
