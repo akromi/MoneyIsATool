@@ -1,6 +1,6 @@
 # Money Is a Tool — Companion Calculators
 
-**Live site:** https://moneyisatool.com/ (also reachable via
+**Live site:** https://moneyisatool.ca/ (also reachable via
 https://akromi.github.io/MoneyIsATool/, which redirects to the custom domain)
 
 A single-page web app that brings the four Excel companion calculators from
@@ -47,7 +47,7 @@ branch on every push. Pages itself is configured once in
 `gh-pages` / root**. After that, every push redeploys automatically. The
 `.nojekyll` file is included.
 
-**Custom domain:** the `CNAME` file pins the site to `moneyisatool.com`.
+**Custom domain:** the `CNAME` file pins the site to `moneyisatool.ca`.
 DNS at the registrar must point the apex at GitHub Pages
 (A records `185.199.108.153`, `185.199.109.153`, `185.199.110.153`,
 `185.199.111.153`, plus a `www` CNAME to `akromi.github.io`). After DNS
