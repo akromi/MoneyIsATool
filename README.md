@@ -36,6 +36,34 @@ verbatim.
   growth over time, budget category bars, and the tax chapter's
   "income filling buckets" bracket diagram.
 
+## Permanent addresses for the printed book
+
+The QR codes in the book point at short, permanent addresses rather than at
+the hash routes above. Each address is a tiny redirect page in this repo that
+forwards to the current tool, so a tool can be rebuilt or moved later without
+invalidating a single printed copy — only the redirect's destination changes.
+
+| Permanent address | Redirect page | Currently forwards to |
+|---|---|---|
+| `https://moneyisatool.ca/budget` | `budget/index.html` | `#/budget` |
+| `https://moneyisatool.ca/borrow` | `borrow/index.html` | `#/borrow` |
+| `https://moneyisatool.ca/savings` | `savings/index.html` | `#/savings` |
+| `https://moneyisatool.ca/tax` | `tax/index.html` | `#/tax` |
+
+Print-ready QR files (SVG + 1200 px PNG) for these addresses live in
+[`qr/`](qr/README.md). **Never change the addresses**; they are printed in
+the book.
+
+## Book & Teacher Resources (gated area)
+
+The digital book and the educator materials need a login, which a static
+site cannot provide, so they live in a small companion app in [`app/`](app/README.md):
+Next.js on Vercel, Supabase for email sign-in and private file storage,
+Stripe Checkout for individual purchases, and owner-created school licences
+with a set number of teacher seats. Every download is checked against the
+signed-in user's entitlement and PDFs are stamped with the licensee's name.
+The calculators here stay free and public. See `app/README.md` for setup.
+
 ## Hosting
 
 Everything is static — any static host works. There is no build step.
@@ -80,6 +108,10 @@ CPP/EI, budget row rules). Notes:
 
 ```
 index.html            the entire app (markup, styles, logic — no dependencies)
+budget/ borrow/
+savings/ tax/         permanent redirect pages for the book's QR codes
+qr/                   print-ready QR code files (SVG + PNG) for those addresses
+app/                  gated Book & Teacher Resources app (deploys to Vercel, not Pages)
 manifest.webmanifest  PWA manifest
 sw.js                 service worker (offline cache)
 icon.svg              app icon (+ icon-maskable.svg for Android)
