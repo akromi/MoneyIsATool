@@ -36,6 +36,24 @@ verbatim.
   growth over time, budget category bars, and the tax chapter's
   "income filling buckets" bracket diagram.
 
+## Permanent addresses for the printed book
+
+The QR codes in the book point at short, permanent addresses rather than at
+the hash routes above. Each address is a tiny redirect page in this repo that
+forwards to the current tool, so a tool can be rebuilt or moved later without
+invalidating a single printed copy — only the redirect's destination changes.
+
+| Permanent address | Redirect page | Currently forwards to |
+|---|---|---|
+| `https://moneyisatool.ca/budget` | `budget/index.html` | `#/budget` |
+| `https://moneyisatool.ca/borrow` | `borrow/index.html` | `#/borrow` |
+| `https://moneyisatool.ca/savings` | `savings/index.html` | `#/savings` |
+| `https://moneyisatool.ca/tax` | `tax/index.html` | `#/tax` |
+
+Print-ready QR files (SVG + 1200 px PNG) for these addresses live in
+[`qr/`](qr/README.md). **Never change the addresses**; they are printed in
+the book.
+
 ## Hosting
 
 Everything is static — any static host works. There is no build step.
@@ -80,6 +98,9 @@ CPP/EI, budget row rules). Notes:
 
 ```
 index.html            the entire app (markup, styles, logic — no dependencies)
+budget/ borrow/
+savings/ tax/         permanent redirect pages for the book's QR codes
+qr/                   print-ready QR code files (SVG + PNG) for those addresses
 manifest.webmanifest  PWA manifest
 sw.js                 service worker (offline cache)
 icon.svg              app icon (+ icon-maskable.svg for Android)
