@@ -28,4 +28,6 @@ codes stay valid even if a tool is later rebuilt, moved, or replaced.
 The codes and the redirect pages (`/budget/`, `/borrow/`, `/savings/`, `/tax/`)
 are generated together by a small Node script (`qrcode` + `sharp`). The
 content of a code is only the address, so **never change the addresses**;
-change the destination inside the redirect page instead.
+change the destination inside the redirect page instead. The site's service
+worker never caches these redirect pages, so a changed destination takes
+effect on the next scan (within the host's normal 10-minute HTTP cache).
