@@ -43,9 +43,9 @@ calculators' design tokens.
 
 ## One-time setup
 
-1. **Supabase** — create a project. In *SQL Editor* run
-   `supabase/migrations/0001_init.sql` (creates tables, row-level security,
-   and the private `resources` bucket). In *Authentication → URL
+1. **Supabase** — create a project. In *SQL Editor* run each file in
+   `supabase/migrations/` in order (tables, row-level security, the private
+   `resources` bucket, and the trigger-function lockdown). In *Authentication → URL
    configuration* set the Site URL to `https://app.moneyisatool.ca` and add
    `https://app.moneyisatool.ca/auth/confirm` to the redirect list. In
    *Authentication → Email templates* the "Magic Link" template's link must
