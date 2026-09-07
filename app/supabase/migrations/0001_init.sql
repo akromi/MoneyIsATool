@@ -23,6 +23,9 @@ begin
   return new;
 end $$;
 
+-- Only the auth trigger may run this; never callable through the REST API.
+revoke execute on function public.handle_new_user() from public, anon, authenticated;
+
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert or update of email on auth.users
