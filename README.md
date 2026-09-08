@@ -66,20 +66,26 @@ The calculators here stay free and public. See `app/README.md` for setup.
 
 ## Hosting
 
-Everything is static — any static host works. There is no build step.
+Both sites run on Vercel, from this one repository.
 
-**GitHub Pages (how this repo deploys):** the
-`.github/workflows/pages.yml` workflow publishes the site to the `gh-pages`
-branch on every push. Pages itself is configured once in
-**Settings → Pages → Build and deployment → Deploy from a branch →
-`gh-pages` / root**. After that, every push redeploys automatically. The
-`.nojekyll` file is included.
+| Address | Vercel project | Built from |
+| --- | --- | --- |
+| `moneyisatool.ca` | `moneyisatool-calculators` | the repository root, via `scripts/build-static.sh` into `dist/` |
+| `app.moneyisatool.ca` | `money-is-a-tool` | the `app/` folder (Next.js) |
 
-**Custom domain:** the `CNAME` file pins the site to `moneyisatool.ca`.
-DNS at the registrar must point the apex at GitHub Pages
-(A records `185.199.108.153`, `185.199.109.153`, `185.199.110.153`,
-`185.199.111.153`, plus a `www` CNAME to `akromi.github.io`). After DNS
-propagates, enable **Enforce HTTPS** in Settings → Pages.
+Merging into `main` publishes both; there is no separate publish step.
+`www.moneyisatool.ca` redirects to the apex with a 308.
+
+DNS is at GoDaddy: an `A` record for the apex plus CNAMEs for `www` and `app`,
+all pointing at Vercel.
+
+**[`TECHNICAL-GUIDE.md`](TECHNICAL-GUIDE.md) is the full reference** — every
+service, the exact DNS records, all environment variables, the routine
+maintenance tasks, and what to do when something breaks.
+
+The site was previously on GitHub Pages. `.github/workflows/pages.yml`, the
+`CNAME` file and the `gh-pages` branch are the remains of that and can be
+removed once Pages is switched off in the repository settings.
 
 ## Faithfulness to the workbooks
 
