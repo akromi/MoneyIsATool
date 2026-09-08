@@ -283,11 +283,48 @@ footer.site{border-top:1px solid var(--line);background:var(--surface2)}
 .foot-inner p{max-width:80ch;margin:0 0 10px}
 .foot-inner .brandline{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:15px;color:var(--ink-soft);font-style:italic;margin-bottom:14px}
 
+/* The report banner and closing lines exist only on paper. */
+.printhead,.printfoot{display:none}
+
 @media print{
-  header.site,footer.site,.toolbar,.paybar,#tip,.subtabs,details.whw{display:none!important}
-  body{background:#fff;color:#000}
-  section.card,details.bgroup{box-shadow:none;border-color:#bbb;break-inside:avoid}
+  @page{margin:16mm 14mm}
+  header.site,footer.site,.toolbar,.paybar,#tip,.subtabs,details.whw,.editnote,
+  .bookband,.homefacts,.toolgrid{display:none!important}
+  body{background:#fff;color:#000;font-size:11pt}
   main{max-width:none;padding:0}
+  section.card,details.bgroup{box-shadow:none;border-color:#bbb;break-inside:avoid}
+
+  .printhead{display:block;margin:0 0 16px;padding:0 0 8px;border-bottom:2px solid #000}
+  .printhead .ph-brand{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    font-size:13pt;font-weight:700;letter-spacing:.02em}
+  .printhead .ph-title{font-size:11pt;font-weight:600;margin-top:2px}
+  .printhead .ph-date{font-size:9pt;color:#444;margin-top:2px}
+
+  .printfoot{display:block;margin-top:18px;padding-top:8px;border-top:1px solid #999;
+    font-size:8.5pt;line-height:1.45;color:#333;break-inside:avoid}
+  .printfoot p{margin:0 0 4px}
+
+  /* Entered figures must read as values on paper, not as empty form boxes. */
+  input[type=text],input[type=search],select{
+    background:transparent!important;border:0!important;border-bottom:1px solid #ccc!important;
+    border-radius:0!important;min-height:0!important;padding:1px 2px!important;
+    color:#000!important;-webkit-appearance:none;appearance:none}
+  /* Keep room for the $ and % affixes, which are positioned over the field. */
+  .inwrap input.money{padding-left:22px!important}
+  .inwrap input.pct{padding-right:24px!important}
+
+  .blank-on-paper{display:none!important}
+  /* Placeholders are prompts, not the reader's figures; they must not print. */
+  input::placeholder{color:transparent!important;opacity:0!important}
+  .tile{box-shadow:none;border-color:#bbb;break-inside:avoid}
+  table.data tr{break-inside:avoid}
+  table.data thead{display:table-header-group}
+  .chart-block{break-inside:avoid}
+  h1,h2,h3{break-after:avoid}
+  .page-head .lede,.important{max-width:none}
+  a{color:#000;text-decoration:none}
+  /* Charts and highlighted totals carry meaning, so keep their fills. */
+  .chart-block,.tile.hl{print-color-adjust:exact;-webkit-print-color-adjust:exact}
 }
 </style>
 </head>
@@ -321,6 +358,10 @@ footer.site{border-top:1px solid var(--line);background:var(--surface2)}
 </header>
 
 <main>
+
+<!-- Report banner and closing line. Hidden on screen; printed at the top and
+     bottom of a saved PDF report so the page stands on its own on paper. -->
+<div class="printhead" id="printhead" aria-hidden="true"></div>
 
 <!-- ============================== HOME ============================== -->
 <div class="page" id="page-home">
@@ -485,7 +526,7 @@ footer.site{border-top:1px solid var(--line);background:var(--surface2)}
     </section>
 
     <div class="toolbar">
-      <button onclick="window.print()">Print this budget</button>
+      <button onclick="MIT.saveReport()">Save as PDF report</button>
       <button onclick="MIT.resetBudget()">Start a fresh budget…</button>
     </div>
   </div>
@@ -641,7 +682,7 @@ footer.site{border-top:1px solid var(--line);background:var(--surface2)}
     </div>
   </section>
 
-  <div class="toolbar"><button onclick="MIT.resetTool('borrow')">Reset this calculator…</button></div>
+  <div class="toolbar"><button onclick="MIT.saveReport()">Save as PDF report</button><button onclick="MIT.resetTool('borrow')">Reset this calculator…</button></div>
 
   <div class="reminder">
     <div class="rlabel">My Financial Reminder</div>
@@ -721,7 +762,7 @@ footer.site{border-top:1px solid var(--line);background:var(--surface2)}
     </div>
   </section>
 
-  <div class="toolbar"><button onclick="MIT.resetTool('savings')">Reset this calculator…</button></div>
+  <div class="toolbar"><button onclick="MIT.saveReport()">Save as PDF report</button><button onclick="MIT.resetTool('savings')">Reset this calculator…</button></div>
 
   <div class="reminder">
     <div class="rlabel">My Financial Reminder</div>
@@ -867,7 +908,7 @@ footer.site{border-top:1px solid var(--line);background:var(--surface2)}
     <p class="important" style="margin-top:12px">Sources used for the built-in 2026 Ontario figures: CRA T4032-ON payroll deduction tables, CRA CPP contribution rates and maximums, and ESDC EI maximum insurable earnings. Find current figures at <a href="https://www.canada.ca/en/revenue-agency/services/tax/individuals/frequently-asked-questions-individuals/canadian-income-tax-rates-individuals-current-previous-years.html" rel="noopener" target="_blank">CRA: Tax rates and income brackets</a> and <a href="https://www.canada.ca/en/revenue-agency/services/tax/businesses/topics/payroll/t4032-payroll-deductions-tables.html" rel="noopener" target="_blank">CRA: Payroll deductions tables</a>.</p>
   </section>
 
-  <div class="toolbar"><button onclick="MIT.resetTool('tax')">Reset this calculator…</button></div>
+  <div class="toolbar"><button onclick="MIT.saveReport()">Save as PDF report</button><button onclick="MIT.resetTool('tax')">Reset this calculator…</button></div>
 
   <div class="reminder">
     <div class="rlabel">My Financial Reminder</div>
@@ -877,6 +918,10 @@ footer.site{border-top:1px solid var(--line);background:var(--surface2)}
   <p class="important"><b>IMPORTANT</b> — This prototype is a simplified educational estimator for Ontario in 2026. It is not a tax return and it does not calculate every deduction, credit, benefit, surtax rule, family situation, business rule, or special tax provision. The final result should always be checked using current CRA information, certified tax software, or a qualified tax professional when appropriate.</p>
 </div>
 
+<div class="printfoot" aria-hidden="true">
+  <p>Prepared with the free Money Is a Tool decision tools at moneyisatool.ca. Figures were entered by the reader and calculated on their own device.</p>
+  <p><b>IMPORTANT</b> — Educational planning tools only, not financial, tax, or lending advice. Actual lender calculations, investment returns, and tax results can differ. Confirm important decisions using official disclosures, current CRA information, or a qualified professional.</p>
+</div>
 </main>
 
 <footer class="site">
@@ -1733,12 +1778,59 @@ const MIT = (() => {
   const ROUTES = ["home", "budget", "borrow", "savings", "tax", "about"];
   const TITLES = { home: "Money Is a Tool Calculators", budget: "Household Budget — Money Is a Tool",
     borrow: "Borrowing & Payment — Money Is a Tool", savings: "Savings & Goal — Money Is a Tool", tax: "Income & Tax — Money Is a Tool", about: "About — Money Is a Tool" };
+  /* What a saved PDF report is called at the top of the page. Only the four
+     calculators produce a report; Home and About are not worth printing. */
+  const REPORTS = { budget: "My Monthly Household Budget", borrow: "My Borrowing & Payment Report",
+    savings: "My Savings & Goal Report", tax: "My Income & Tax Planning Report" };
+  function fillPrintHead() {
+    const head = $("#printhead");
+    if (!head) return;
+    const r = (location.hash || "#/home").replace(/^#\/?/, "").split("?")[0];
+    const title = REPORTS[r];
+    if (!title) { head.innerHTML = ""; return; }
+    const when = new Date().toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" });
+    head.innerHTML =
+      '<div class="ph-brand">Money Is a Tool</div>' +
+      '<div class="ph-title"></div><div class="ph-date"></div>';
+    head.querySelector(".ph-title").textContent = title;
+    head.querySelector(".ph-date").textContent = "Prepared " + when;
+  }
+  /* Prepare the page for paper. Collapsed groups are opened so nothing is
+     silently missing from the report, and once a household has entered
+     anything at all, the rows and groups they left empty are dropped so the
+     report is the length of their actual plan rather than of the template.
+     An untouched budget still prints in full, which is how someone gets a
+     blank one to fill in by hand. */
+  const printOpened = [];
+  function beforeReport() {
+    fillPrintHead();
+    $$("details.bgroup").forEach((g) => { if (!g.open) { printOpened.push(g); g.open = true; } });
+    const rows = $$(".brow");
+    const filled = (row) => [...row.querySelectorAll("input")].some((i) => i.value.trim() !== "");
+    const anyFilledAnywhere = rows.some(filled);
+    rows.forEach((row) => row.classList.toggle("blank-on-paper", anyFilledAnywhere && !filled(row)));
+    $$("details.bgroup").forEach((g) => {
+      const gr = [...g.querySelectorAll(".brow")];
+      g.classList.toggle("blank-on-paper",
+        anyFilledAnywhere && gr.length > 0 && gr.every((r) => r.classList.contains("blank-on-paper")));
+    });
+  }
+  function afterReport() {
+    while (printOpened.length) printOpened.pop().open = false;
+    $$(".blank-on-paper").forEach((el) => el.classList.remove("blank-on-paper"));
+  }
+  /* Every browser can save a printed page as PDF, so the report needs no
+     library and nothing leaves the reader's device. */
+  function saveReport() { beforeReport(); window.print(); }
+  window.addEventListener("beforeprint", beforeReport);
+  window.addEventListener("afterprint", afterReport);
   function route() {
     let r = (location.hash || "#/home").replace(/^#\/?/, "").split("?")[0];
     if (!ROUTES.includes(r)) r = "home";
     ROUTES.forEach(x => { const p = $("#page-" + x); if (p) p.classList.toggle("active", x === r); });
     $$("nav.tabs a").forEach(a => a.dataset.route === r ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
     document.title = TITLES[r];
+    fillPrintHead();
     recalcActive();
     window.scrollTo({ top: 0 });
   }
@@ -1798,7 +1890,7 @@ const MIT = (() => {
     addEventListener("load", () => { navigator.serviceWorker.register("./sw.js").catch(() => {}); });
   }
 
-  return { budgetView, resetBudget, resetTool, resetTaxData, clearAll, fitRelink };
+  return { budgetView, resetBudget, resetTool, resetTaxData, clearAll, fitRelink, saveReport };
 })();
 </script>
 </body>
