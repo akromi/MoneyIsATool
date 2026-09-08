@@ -313,6 +313,12 @@ footer.site{border-top:1px solid var(--line);background:var(--surface2)}
   .inwrap input.money{padding-left:22px!important}
   .inwrap input.pct{padding-right:24px!important}
 
+  /* Result tables belong in the report as tables. Their summaries are prompts
+     to click, so the two that only say "view this" are dropped, and the
+     payroll one, whose summary is its real heading, prints as a heading. */
+  details.tbl summary{color:#000;font-weight:700;cursor:auto;list-style:none}
+  #sg-tablewrap>summary,#tx-bracketwrap>summary{display:none}
+  details.tbl .twrap{overflow:visible}
   .blank-on-paper{display:none!important}
   /* Placeholders are prompts, not the reader's figures; they must not print. */
   input::placeholder{color:transparent!important;opacity:0!important}
@@ -1804,7 +1810,7 @@ const MIT = (() => {
   const printOpened = [];
   function beforeReport() {
     fillPrintHead();
-    $$("details.bgroup").forEach((g) => { if (!g.open) { printOpened.push(g); g.open = true; } });
+    $$("details.bgroup, details.tbl").forEach((g) => { if (!g.open) { printOpened.push(g); g.open = true; } });
     const rows = $$(".brow");
     const filled = (row) => [...row.querySelectorAll("input")].some((i) => i.value.trim() !== "");
     const anyFilledAnywhere = rows.some(filled);
