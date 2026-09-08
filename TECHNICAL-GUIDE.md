@@ -68,12 +68,16 @@ variables, never in the code.
 ### GitHub Pages, now retired
 
 The site was served by GitHub Pages until the move to Vercel. The workflow that
-published it, the `CNAME` file and the `gh-pages` branch have all been removed,
-so nothing force-pushes that branch any more and Vercel has nothing stale to
-try to build.
+published it and the Pages-specific `CNAME` file have been removed, so nothing
+force-pushes the `gh-pages` branch any more and no new stale commits appear for
+Vercel to try to build.
 
-If **Settings → Pages → Source** still names a branch, set it to *None*. The
-`gh-pages` branch itself can be deleted whenever you like.
+Two pieces of tidying are left, neither urgent, and both done by hand:
+
+- Set **Settings → Pages → Source** to *None*, so nothing tries to serve the old
+  copy.
+- Delete the `gh-pages` branch. It still exists, holding the last copy Pages
+  published.
 
 ---
 

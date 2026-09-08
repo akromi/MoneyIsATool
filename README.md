@@ -1,7 +1,6 @@
 # Money Is a Tool — Companion Calculators
 
-**Live site:** https://moneyisatool.ca/ (also reachable via
-https://akromi.github.io/MoneyIsATool/, which redirects to the custom domain)
+**Live site:** https://moneyisatool.ca/
 
 A single-page web app that brings the four Excel companion calculators from
 *Money Is a Tool — A Household Financial Decision Guide* to the web, ready for
