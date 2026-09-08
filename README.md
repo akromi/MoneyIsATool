@@ -83,9 +83,8 @@ all pointing at Vercel.
 service, the exact DNS records, all environment variables, the routine
 maintenance tasks, and what to do when something breaks.
 
-The site was previously on GitHub Pages. `.github/workflows/pages.yml`, the
-`CNAME` file and the `gh-pages` branch are the remains of that and can be
-removed once Pages is switched off in the repository settings.
+The site was previously on GitHub Pages; the publishing workflow and the `CNAME`
+file have been removed.
 
 ## Faithfulness to the workbooks
 
