@@ -21,8 +21,9 @@ are built from the repository root; the book area is built from the `app`
 folder.
 
 Everything a visitor types into the calculators stays in their own browser. The
-only personal data the project stores is in the book area: an email address, what
-was purchased, and school licence details.
+personal data the project stores is all in the book area: an email address, what
+was purchased, school licence details, and a download log that records who
+downloaded which file, when, and the IP address the request came from.
 
 ---
 
@@ -62,6 +63,20 @@ is faster than fixing the code, and can be done while the real fix is prepared.
 
 **Do not commit secrets.** Keys and passwords belong in Vercel's environment
 variables, never in the code.
+
+### Retiring GitHub Pages
+
+The site used to be served by GitHub Pages and two leftovers remain:
+
+- `.github/workflows/pages.yml` still runs on every push to `main` and
+  force-pushes the `gh-pages` branch. Vercel then tries to build that branch and
+  fails, which is where the "deployment failed" emails come from.
+  **Switching Pages off in the repository settings will not stop this**, because
+  the workflow runs whatever that setting says. Delete the workflow file.
+- The `CNAME` file and the `gh-pages` branch can go at the same time.
+
+Then set **Settings → Pages → Source** to *None*, so nothing tries to serve the
+old copy.
 
 ---
 
@@ -161,7 +176,7 @@ One project, `moneyisatool`, in the Canadian region.
 | `licences` | School licences: school name, seats, status, expiry |
 | `licence_members` | Which teachers belong to which licence |
 | `resources` | The list of downloadable files and who may see each |
-| `downloads` | A record of each download |
+| `downloads` | A record of each download: the account, the file, the time, and the IP address it came from. This is personal data — include it in any privacy notice, and delete old rows if you would rather not keep it. |
 | `licence_requests` | Enquiries from the school licence form |
 
 Files themselves live in **Storage**, in a private bucket called `resources`.
@@ -284,7 +299,7 @@ two can never disagree for long.
 | Sign-in emails never arrive | Resend key expired, or the SMTP settings are wrong | Supabase → Authentication → Emails; check junk mail first |
 | Someone paid but has no access | The webhook failed | Stripe → Developers → Webhooks; the failed attempt can be resent |
 | A change was published but nobody sees it | An old copy cached in the browser | Reload twice, or hard reload. The site fetches fresh pages, so this should be rare |
-| "Deployment failed" email from Vercel about `gh-pages` | The old GitHub Pages branch is still being built | Harmless. It stops once GitHub Pages is switched off |
+| "Deployment failed" email from Vercel about `gh-pages` | The old Pages workflow still force-pushes that branch on every push to `main`, and Vercel tries to build it | Harmless. Switching Pages off does not stop it; delete the workflow file, as in section 4 |
 
 ---
 
