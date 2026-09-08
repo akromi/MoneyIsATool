@@ -2,9 +2,10 @@ import Link from "next/link";
 import Shell from "@/components/Shell";
 import { getUser } from "@/lib/auth";
 import { calculatorsUrl } from "@/lib/env";
+import { bookPriceLabel } from "@/lib/price";
 
 export default async function Home() {
-  const user = await getUser();
+  const [user, price] = await Promise.all([getUser(), bookPriceLabel()]);
   return (
     <Shell current="home">
       <div className="hero">
@@ -22,6 +23,7 @@ export default async function Home() {
             <li>Free companion calculators — budget, borrowing, savings, tax</li>
             <li>Keep it: re-download any time from your account</li>
           </ul>
+          {price && <p className="price">{price}</p>}
           <p>
             <form action="/api/checkout" method="post">
               <button className="btn" type="submit">Buy the digital book</button>

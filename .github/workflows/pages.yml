@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: ["claude/wpa-calculator-excel-q8r3y8", "main", "master"]
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
