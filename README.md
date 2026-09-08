@@ -1,7 +1,6 @@
 # Money Is a Tool — Companion Calculators
 
-**Live site:** https://moneyisatool.ca/ (also reachable via
-https://akromi.github.io/MoneyIsATool/, which redirects to the custom domain)
+**Live site:** https://moneyisatool.ca/
 
 A single-page web app that brings the four Excel companion calculators from
 *Money Is a Tool — A Household Financial Decision Guide* to the web, ready for
@@ -83,9 +82,8 @@ all pointing at Vercel.
 service, the exact DNS records, all environment variables, the routine
 maintenance tasks, and what to do when something breaks.
 
-The site was previously on GitHub Pages. `.github/workflows/pages.yml`, the
-`CNAME` file and the `gh-pages` branch are the remains of that and can be
-removed once Pages is switched off in the repository settings.
+The site was previously on GitHub Pages; the publishing workflow and the `CNAME`
+file have been removed.
 
 ## Faithfulness to the workbooks
 
