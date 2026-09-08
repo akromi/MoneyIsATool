@@ -28,10 +28,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.redirect(new URL("/account?denied=file", request.url));
   }
 
+  // Who downloaded what, and when. Deliberately not the IP address: it is
+  // personal data, and knowing the account is enough to spot a shared licence.
   await admin.from("downloads").insert({
     user_id: user.id,
     resource_id: resource.id,
-    ip: request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || null,
   });
 
   const isPdf = /\.pdf$/i.test(resource.file_name);
