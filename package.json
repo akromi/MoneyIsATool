@@ -1,0 +1,8 @@
+{
+  "name": "moneyisatool-calculators",
+  "private": true,
+  "description": "Build and edge middleware for the free calculators site at moneyisatool.ca.",
+  "dependencies": {
+    "@vercel/functions": "3.9.5"
+  }
+}
