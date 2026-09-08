@@ -212,6 +212,12 @@ table.data th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color
 .bookband{margin:36px 0 0;padding-top:18px;border-top:1px solid var(--rule)}
 .bookband h2{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:24px;margin:6px 0 8px;font-weight:650}
 .bookband p{margin:0;max-width:64ch;color:var(--ink-soft)}
+.about{max-width:68ch}
+.about h2{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:22px;margin:30px 0 8px;font-weight:650}
+.about p{color:var(--ink-soft);margin:0 0 11px}
+.about ul{color:var(--ink-soft);margin:0 0 11px;padding-left:20px}
+.about li{margin:0 0 6px}
+.about blockquote{margin:16px 0;padding:2px 0 2px 16px;border-left:3px solid var(--brass);font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:17.5px;line-height:1.5;color:var(--ink)}
 nav.tabs a.ext{color:var(--brass)}
 
 /* stat tiles */
@@ -308,6 +314,7 @@ footer.site{border-top:1px solid var(--line);background:var(--surface2)}
       <a href="#/borrow" data-route="borrow">Borrowing</a>
       <a href="#/savings" data-route="savings">Savings &amp; Goals</a>
       <a href="#/tax" data-route="tax">Income &amp; Tax</a>
+      <a href="#/about" data-route="about">About</a>
       <a href="https://app.moneyisatool.ca/" class="ext">The Book</a>
     </nav>
   </div>
@@ -383,6 +390,44 @@ footer.site{border-top:1px solid var(--line);background:var(--surface2)}
       <p>One school licence covers a set number of teacher accounts, each with the digital book, the classroom PowerPoint, Teacher Guide, Flexible Implementation Guide, and the test and question bank.</p>
       <span class="go">Request a school licence →</span>
     </a>
+  </div>
+
+  <p class="important" style="margin-top:34px"><b>IMPORTANT</b> — These are educational planning tools, not financial, tax, or lending advice. Actual lender calculations, investment returns, and tax results can differ. Always confirm important decisions using official disclosures, current CRA information, or a qualified professional.</p>
+</div>
+
+<!-- ============================== ABOUT ============================== -->
+<div class="page" id="page-about">
+  <div class="hero">
+    <div class="openph">About</div>
+    <h1>About Money Is a Tool</h1>
+    <p><em>Money Is a Tool</em> is a household financial decision guide. These calculators are its companion. Together they have one purpose: to help you see a decision clearly before you make it.</p>
+  </div>
+
+  <div class="about">
+    <h2>The idea behind it</h2>
+    <p>Most money advice starts by telling you what to do. This does not. It starts from the belief that a household decides better when it can see the whole picture — the payment, the total cost, the timeline, and what the choice asks of the life you are trying to build.</p>
+    <blockquote>“Here is the information. Here are the consequences. Here are the tools. Now ask yourself: does this decision support the life you are trying to build?”</blockquote>
+    <p>That question is the method. The guide supplies the information and the consequences. These calculators supply the tools. The decision stays yours, which is where it belongs.</p>
+
+    <h2>What you will find here</h2>
+    <ul>
+      <li><b>Four decision tools, free for everyone.</b> A household budget with a pay-period check-in, a borrowing and payment calculator, a savings and goal calculator, and an income and tax planner.</li>
+      <li><b>The guide itself.</b> The complete digital edition, licensed to the reader and available to re-download at any time.</li>
+      <li><b>A classroom edition.</b> Schools can license the book for their teachers together with a full set of materials: the classroom PowerPoint, the Teacher Guide, the Flexible Implementation Guide, and the test and question bank.</li>
+    </ul>
+
+    <h2>How your information is treated</h2>
+    <p>The calculators need no account and collect nothing. Every figure you enter is calculated on your own device and saved only in this browser, so it never reaches us or anyone else. Clearing your browser data clears it for good.</p>
+    <p>Buying the book does create an account, because a purchase has to be remembered. That account holds your email address and what you bought, nothing more.</p>
+
+    <h2>Built to be returned to</h2>
+    <p>These tools are not a one-time exercise. A new job, a new goal, a rate that changes, a payment about to become part of your life — each is a reason to open them again. Once a page has loaded it keeps working without an internet connection, and on most phones you can add it to your home screen and use it like an app.</p>
+
+    <!-- ABOUT THE AUTHOR: add a short paragraph here (name, background, why the book
+         was written). Left out deliberately rather than guessed at. -->
+
+    <h2>Getting in touch</h2>
+    <p>Schools and school boards can <a href="https://app.moneyisatool.ca/school-licence">request a licence and ask questions here</a>. Readers who have bought the book can reach their downloads any time by <a href="https://app.moneyisatool.ca/login">signing in with their email</a>.</p>
   </div>
 
   <p class="important" style="margin-top:34px"><b>IMPORTANT</b> — These are educational planning tools, not financial, tax, or lending advice. Actual lender calculations, investment returns, and tax results can differ. Always confirm important decisions using official disclosures, current CRA information, or a qualified professional.</p>
@@ -1685,9 +1730,9 @@ const MIT = (() => {
   }
 
   /* ================= shell ================= */
-  const ROUTES = ["home", "budget", "borrow", "savings", "tax"];
+  const ROUTES = ["home", "budget", "borrow", "savings", "tax", "about"];
   const TITLES = { home: "Money Is a Tool Calculators", budget: "Household Budget — Money Is a Tool",
-    borrow: "Borrowing & Payment — Money Is a Tool", savings: "Savings & Goal — Money Is a Tool", tax: "Income & Tax — Money Is a Tool" };
+    borrow: "Borrowing & Payment — Money Is a Tool", savings: "Savings & Goal — Money Is a Tool", tax: "Income & Tax — Money Is a Tool", about: "About — Money Is a Tool" };
   function route() {
     let r = (location.hash || "#/home").replace(/^#\/?/, "").split("?")[0];
     if (!ROUTES.includes(r)) r = "home";
