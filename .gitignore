@@ -1,2 +1,8 @@
 dist/
 node_modules/
+
+# Made on demand by scripts/guide-pdf/build.sh, never committed: a PDF
+# beside the Markdown goes stale the moment the guide is edited.
+TECHNICAL-GUIDE.pdf
+scripts/guide-pdf/.guide.html
+scripts/guide-pdf/.render-error
