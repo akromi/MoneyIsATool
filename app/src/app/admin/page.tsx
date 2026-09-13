@@ -5,7 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { licenceIsActive, type Licence } from "@/lib/entitlements";
 import { siteUrl } from "@/lib/env";
 import { LicenceForm, ResourceForm } from "./Forms";
-import { setLicenceStatus, updateSeats, markRequestHandled, deleteResource } from "./actions";
+import { setLicenceStatus, updateSeats, updateExpiry, markRequestHandled, deleteResource } from "./actions";
 
 export default async function AdminPage() {
   await requireOwner("/admin");
@@ -63,7 +63,13 @@ export default async function AdminPage() {
                     </form>
                     <div className="faint">{used.get(l.id) || 0} in use</div>
                   </td>
-                  <td>{licenceIsActive(l) ? <span className="pill">Active</span> : <span className="pill off">{l.status === "suspended" ? "Suspended" : "Expired"}</span>}<div className="faint">{l.expires_at ? `until ${new Date(l.expires_at).toLocaleDateString("en-CA")}` : "perpetual"}</div></td>
+                  <td>{licenceIsActive(l) ? <span className="pill">Active</span> : <span className="pill off">{l.status === "suspended" ? "Suspended" : "Expired"}</span>}<div className="faint">{l.expires_at ? `until ${new Date(l.expires_at).toLocaleDateString("en-CA")}` : "perpetual"}</div>
+                    <form action={updateExpiry} className="row" style={{ gap: 6, marginTop: 6 }}>
+                      <input type="hidden" name="id" value={l.id} />
+                      <input type="date" name="expires" defaultValue={l.expires_at ? new Date(l.expires_at).toISOString().slice(0, 10) : ""} style={{ width: 150 }} aria-label={`Expiry date for ${l.school_name}`} />
+                      <button className="btn secondary small" type="submit">Set</button>
+                    </form>
+                    <div className="faint">Blank = never expires</div></td>
                   <td><span className="code">{siteUrl()}/join/{l.invite_code}</span></td>
                   <td>
                     <form action={setLicenceStatus}>

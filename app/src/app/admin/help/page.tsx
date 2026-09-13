@@ -44,6 +44,7 @@ export default async function AdminHelpPage() {
             <ul className="list">
               <li>Create a school licence</li>
               <li>Change how many teacher seats it has</li>
+              <li>Set or clear a licence&apos;s expiry date, which is how renewals are done</li>
               <li>Suspend a licence, or make it active again</li>
               <li>Mark a licence request as handled</li>
               <li>Add, update or remove a downloadable file</li>
@@ -72,7 +73,8 @@ export default async function AdminHelpPage() {
           <li><b>The invite code</b> is how teachers join. Generating a new one immediately stops the old one
             working, but teachers who have already joined stay in.</li>
           <li><b>Expiry</b> left blank means the licence never expires. A date in the past ends access on its
-            own, with nothing for you to do.</li>
+            own, with nothing for you to do. You can change the date at any time from the school licences
+            list, which is how a renewal is done.</li>
           <li><b>Suspending</b> removes access for everyone on the licence straight away, the administrator
             included. Making it active again restores them. Nobody has to rejoin.</li>
           <li><b>When the seats are full</b>, the next teacher to try the code is told so by name, for example
@@ -89,8 +91,11 @@ export default async function AdminHelpPage() {
           <tbody>
             <tr>
               <td>I paid but I cannot get in</td>
-              <td>They are signing in with a different address from the one they paid with. Find the payment
-                in Stripe to see which address that was, and ask them to sign in with it.</td>
+              <td>Two different causes, so check in this order. First, find the payment in Stripe and confirm
+                the site actually recorded it: if Stripe shows the webhook failing, resend it from there, and
+                their access appears without them doing anything. If the payment did register, they are
+                simply signing in with a different address from the one they paid with, which Stripe will
+                show you.</td>
             </tr>
             <tr>
               <td>The sign-in email never arrived</td>
@@ -113,7 +118,8 @@ export default async function AdminHelpPage() {
             </tr>
             <tr>
               <td>We want to renew for another year</td>
-              <td>Change the expiry date on the licence. Teachers keep their places and nobody rejoins.</td>
+              <td>Set a new expiry date on the licence below, or clear the date to stop it expiring at all.
+                Teachers keep their places and nobody rejoins.</td>
             </tr>
             <tr>
               <td>We want a refund</td>
