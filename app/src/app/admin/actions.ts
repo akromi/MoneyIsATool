@@ -47,6 +47,19 @@ export async function updateSeats(formData: FormData) {
   revalidatePath("/admin");
 }
 
+/** Renewing, or ending, an existing licence. Blank means perpetual. */
+export async function updateExpiry(formData: FormData) {
+  await requireOwner("/admin");
+  const id = String(formData.get("id") || "");
+  if (!id) return;
+  const expires = String(formData.get("expires") || "").trim();
+  await createAdminClient()
+    .from("licences")
+    .update({ expires_at: expires ? new Date(`${expires}T23:59:59`).toISOString() : null })
+    .eq("id", id);
+  revalidatePath("/admin");
+}
+
 export async function markRequestHandled(formData: FormData) {
   await requireOwner("/admin");
   const id = String(formData.get("id") || "");

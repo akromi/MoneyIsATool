@@ -87,6 +87,15 @@ nav.tabs a{
 }
 nav.tabs a:hover{color:var(--ink);text-decoration:none}
 nav.tabs a[aria-current="page"]{color:var(--brand);border-bottom-color:var(--brand)}
+/* On a phone the tabs no longer fit across. Scrolling them sideways hid
+   Income & Tax, About and The Book with no scrollbar to hint at them, so on
+   narrow screens they wrap onto as many rows as they need. */
+@media (max-width:760px){
+  .site-inner{padding:10px 16px 0;gap:2px 0}
+  nav.tabs{margin-left:0;width:100%;flex-wrap:wrap;overflow-x:visible;gap:0 2px}
+  nav.tabs a{padding:8px 11px 10px;font-size:13.5px}
+  .brand .bname{font-size:21px;white-space:normal}
+}
 
 /* ---------- page scaffolding ---------- */
 main{max-width:1080px;margin:0 auto;padding:26px 20px 60px}

@@ -237,6 +237,13 @@ save, send yourself a sign-in link to confirm it works, then delete the old key.
 
 ## 10. Routine tasks
 
+Whoever runs the site day to day has their own guide, inside the site itself at
+**app.moneyisatool.ca/admin/help**, linked from the top of the Admin page. It
+covers how access works, who does what between you and each school's own
+administrator, and what to say when a customer writes in. This section is the
+shorter reference for the same jobs.
+
+
 ### Replace the book file with a new edition
 
 1. Supabase → Storage → `resources`, upload the new PDF.
