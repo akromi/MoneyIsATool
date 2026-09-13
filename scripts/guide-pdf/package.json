@@ -1,0 +1,8 @@
+{
+  "name": "moneyisatool-guide-pdf",
+  "private": true,
+  "description": "Turns TECHNICAL-GUIDE.md into a printable PDF. Kept out of the root package.json so the calculators site never installs it.",
+  "devDependencies": {
+    "playwright": "1.56.1"
+  }
+}

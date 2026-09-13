@@ -1,0 +1,158 @@
+/* Print styling for the technical guide. Colours follow the site: the deep
+   green of the book area, its ink, and the gold used for small labels. */
+:root{
+  --ink:#1d2419;
+  --soft:#4b5347;
+  --line:#d7dbd0;
+  --green:#0e6f42;
+  --gold:#8a6a1f;
+  --wash:#f5f7f2;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  color:var(--ink);
+  font:10.5pt/1.5 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-print-color-adjust:exact;
+  print-color-adjust:exact;
+}
+
+h1,h2,h3{
+  font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  font-weight:650;
+  line-height:1.22;
+  color:var(--ink);
+  /* A heading at the foot of a page with its text overleaf is the single
+     worst thing that happens to a printed reference. */
+  break-after:avoid;
+  page-break-after:avoid;
+}
+
+h1{
+  font-size:27pt;
+  margin:0 0 4pt;
+  letter-spacing:-.01em;
+}
+h1 + p{
+  font-size:12.5pt;
+  color:var(--soft);
+  margin:0 0 14pt;
+}
+
+h2{
+  font-size:16.5pt;
+  margin:0 0 10pt;
+  padding:0 0 5pt;
+  border-bottom:1.5pt solid var(--green);
+  color:var(--green);
+  /* Each numbered section opens a page, so "see section 7" is a physical act. */
+  break-before:page;
+  page-break-before:always;
+}
+h2.first,h2.tochead{break-before:auto;page-break-before:auto}
+
+h3{
+  font-size:12pt;
+  margin:16pt 0 5pt;
+}
+
+p{margin:0 0 8pt;orphans:2;widows:2}
+
+a{color:var(--green);text-decoration:none}
+
+code{
+  font-family:"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  font-size:.87em;
+  background:var(--wash);
+  border:.5pt solid var(--line);
+  border-radius:3pt;
+  padding:.5pt 3pt;
+  overflow-wrap:anywhere;
+}
+
+b{font-weight:670}
+
+hr{
+  border:0;
+  border-top:.75pt solid var(--line);
+  margin:14pt 0;
+}
+
+ul,ol{margin:0 0 9pt;padding-left:17pt}
+li{margin:0 0 3.5pt;break-inside:avoid;page-break-inside:avoid}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin:0 0 11pt;
+  font-size:9.5pt;
+}
+/* A table that runs over a page break repeats its header rather than
+   stranding a column of values with no labels. */
+thead{display:table-header-group}
+th{
+  text-align:left;
+  font-size:8pt;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+  color:var(--gold);
+  font-weight:700;
+  border-bottom:1pt solid var(--line);
+  padding:0 8pt 4pt 0;
+}
+td{
+  vertical-align:top;
+  padding:5pt 8pt 5pt 0;
+  border-bottom:.5pt solid var(--line);
+  overflow-wrap:anywhere;
+}
+th:last-child,td:last-child{padding-right:0}
+tr{break-inside:avoid;page-break-inside:avoid}
+/* The leading column of every table in this guide is the thing being looked
+   up, so it carries the weight. Its width follows the column count: a
+   two-column table can afford to give a long environment-variable name enough
+   room to sit on one line, where a four-column one cannot. */
+tbody td:first-child{font-weight:620}
+.cols-2 tbody td:first-child{width:36%}
+.cols-3 tbody td:first-child{width:27%}
+.cols-4 tbody td:first-child{width:13%}
+
+.toc{
+  margin:0 0 4pt;
+  padding:13pt 16pt 6pt;
+  background:var(--wash);
+  border:.75pt solid var(--line);
+  border-radius:6pt;
+  break-inside:avoid;
+  page-break-inside:avoid;
+}
+.toc .tochead{
+  font-size:8pt;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--gold);
+  border:0;
+  margin:0 0 7pt;
+  padding:0;
+  font-family:inherit;
+  font-weight:700;
+}
+.toc ol{
+  margin:0;
+  padding-left:15pt;
+  columns:2;
+  column-gap:26pt;
+  font-size:9.5pt;
+}
+.toc li{margin:0 0 3pt;break-inside:avoid}
+.toc a{color:var(--ink)}
+
+.toc .note{
+  margin:9pt 0 0;
+  padding-top:8pt;
+  border-top:.5pt solid var(--line);
+  font-size:8.5pt;
+  color:var(--soft);
+}
