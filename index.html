@@ -206,6 +206,9 @@ table.data th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color
 .hero .openph{font-size:11px;letter-spacing:.18em;color:var(--brass);text-transform:uppercase;font-weight:700}
 .hero h1{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:clamp(30px,5.4vw,44px);line-height:1.14;margin:10px 0 14px;font-weight:600;text-wrap:balance}
 .hero p{font-size:17px;color:var(--ink-soft);max-width:58ch}
+.grouphead{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:22px;
+  font-weight:650;margin:38px 0 2px}
+.groupsub{color:var(--ink-soft);margin:0;max-width:70ch}
 .toolgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:28px 0 0}
 @media (max-width:640px){.toolgrid{grid-template-columns:1fr}}
 .toolcard{background:var(--surface);border:1px solid var(--card-edge);border-radius:12px;box-shadow:var(--shadow);padding:18px 18px 16px;display:flex;flex-direction:column;gap:8px;color:var(--ink)}
@@ -228,6 +231,9 @@ table.data th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color
 .about li{margin:0 0 6px}
 .about blockquote{margin:16px 0;padding:2px 0 2px 16px;border-left:3px solid var(--brass);font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:17.5px;line-height:1.5;color:var(--ink)}
 nav.tabs a.ext{color:var(--brass)}
+/* Divides the calculators from the planners without adding another row. */
+.tabsep{align-self:center;width:1px;height:15px;background:var(--line);margin:0 7px;flex:none}
+@media (max-width:760px){.tabsep{display:none}}
 
 /* stat tiles */
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:18px 0 0}
@@ -278,6 +284,37 @@ details.bgroup summary .bsum{margin-left:auto;font-variant-numeric:tabular-nums;
 .cirow .rlabel{font-size:13.8px;color:var(--ink-soft)}
 @media (max-width:640px){.cirow{grid-template-columns:1.2fr 1fr}.cirow .x2{display:none}}
 
+/* planners — worksheet tables, one column per option or per detail */
+.ptable{margin:2px 0 0}
+.phead,.prow{display:grid;gap:8px;align-items:start;padding:6px 0}
+.phead{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);font-weight:700;border-bottom:1px solid var(--line);padding-bottom:7px}
+.prow{border-bottom:1px solid var(--line)}
+.prow:last-child{border-bottom:0}
+.prow .rlabel{font-size:13.8px;color:var(--ink-soft);padding-top:7px}
+.prow.tot{background:var(--surface2)}
+.prow.tot .rlabel{font-weight:700;color:var(--ink)}
+.prow input,.prow select{min-height:32px;padding:5px 8px;font-size:13.5px;width:100%}
+.prow .inwrap{display:block}
+.prow .pcalc{text-align:right;font-variant-numeric:tabular-nums;font-weight:650;font-size:14px;padding-top:8px;white-space:nowrap}
+.prow .pstatic{font-size:12.5px;color:var(--ink-faint);padding-top:9px}
+.prow [data-mob]{position:relative}
+@media (max-width:860px){
+  .phead{display:none}
+  /* The inline template is per-section, so the stacked one has to outrank it. */
+  .prow{grid-template-columns:1fr 1fr!important;gap:7px 10px;padding:12px 0}
+  .prow .rlabel{grid-column:1/-1;font-weight:650;color:var(--ink);padding-top:0}
+  .prow .pcalc,.prow .pstatic{padding-top:0}
+  .prow [data-mob]::before{content:attr(data-mob);display:block;font-size:10px;letter-spacing:.07em;
+    text-transform:uppercase;color:var(--ink-faint);margin-bottom:3px}
+}
+.prompt{padding:11px 0;border-bottom:1px solid var(--line)}
+.prompt:last-child{border-bottom:0}
+.prompt label{display:block;font-size:14px;color:var(--ink-soft);font-weight:550;margin:0 0 6px}
+.prompt textarea{display:block;width:100%;min-height:56px;resize:vertical;font:inherit;font-size:14px;
+  line-height:1.5;padding:8px 10px;background:var(--input-bg);border:1px solid var(--input-edge);
+  border-radius:8px;color:var(--ink)}
+.prompt textarea:focus{outline:2px solid var(--brand);outline-offset:1px;border-color:var(--brand)}
+
 /* tax data editor */
 .taxgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
 .taxtable{width:100%;border-collapse:collapse}
@@ -319,6 +356,14 @@ footer.site{border-top:1px solid var(--line);background:var(--surface2)}
     border-radius:0!important;min-height:0!important;padding:1px 2px!important;
     color:#000!important;-webkit-appearance:none;appearance:none}
   /* Keep room for the $ and % affixes, which are positioned over the field. */
+  /* A field still holding focus when the reader prints must not ring itself. */
+  textarea:focus,input:focus{outline:0!important}
+  textarea{background:transparent!important;border:0!important;border-bottom:1px solid #ccc!important;
+    border-radius:0!important;padding:1px 2px!important;color:#000!important;min-height:0!important;
+    resize:none;overflow:visible}
+  .prow.tot{background:transparent!important}
+  .prow,.phead{break-inside:avoid}
+  .prompt{break-inside:avoid}
   .inwrap input.money{padding-left:22px!important}
   .inwrap input.pct{padding-right:24px!important}
 
@@ -366,6 +411,11 @@ footer.site{border-top:1px solid var(--line);background:var(--surface2)}
       <a href="#/borrow" data-route="borrow">Borrowing</a>
       <a href="#/savings" data-route="savings">Savings &amp; Goals</a>
       <a href="#/tax" data-route="tax">Income &amp; Tax</a>
+      <span class="tabsep" aria-hidden="true"></span>
+      <a href="#/income" data-route="income">Tax Planner</a>
+      <a href="#/housing" data-route="housing">Housing</a>
+      <a href="#/protect" data-route="protect">Protection</a>
+      <span class="tabsep" aria-hidden="true"></span>
       <a href="#/about" data-route="about">About</a>
       <a href="https://app.moneyisatool.ca/" class="ext">The Book</a>
     </nav>
@@ -413,6 +463,29 @@ footer.site{border-top:1px solid var(--line);background:var(--surface2)}
     </a>
   </div>
 
+  <h2 class="grouphead">Planners</h2>
+  <p class="groupsub">Worksheets for the decisions that are not settled by a number alone. They ask the questions, you write the answers, and the page saves them on your device.</p>
+  <div class="toolgrid">
+    <a class="toolcard" href="#/income">
+      <span class="tc-kicker">Planner</span>
+      <h2>Income &amp; Tax Planner</h2>
+      <p>Gather every source of income, what has already been withheld, and the short list of things to check or set aside before tax time arrives.</p>
+      <span class="go">Open the planner →</span>
+    </a>
+    <a class="toolcard" href="#/housing">
+      <span class="tc-kicker">Planner</span>
+      <h2>Home Decision Planner</h2>
+      <p>Set up to three housing options side by side — full monthly cost, cash needed up front, and the questions a payment cannot answer.</p>
+      <span class="go">Open the planner →</span>
+    </a>
+    <a class="toolcard" href="#/protect">
+      <span class="tc-kicker">Planner</span>
+      <h2>Household Protection Planner</h2>
+      <p>Review what could go wrong against what you already hold, and turn the gap between them into a list of things to check.</p>
+      <span class="go">Open the planner →</span>
+    </a>
+  </div>
+
   <div class="homefacts">
     <div class="hf">
       <h3>Yours, and private</h3>
@@ -449,6 +522,99 @@ footer.site{border-top:1px solid var(--line);background:var(--surface2)}
   </div>
 
   <p class="important" style="margin-top:34px"><b>IMPORTANT</b> — These are educational planning tools, not financial, tax, or lending advice. Actual lender calculations, investment returns, and tax results can differ. Always confirm important decisions using official disclosures, current CRA information, or a qualified professional.</p>
+</div>
+
+<!-- ===================== INCOME &amp; TAX PLANNER ===================== -->
+<div class="page" id="page-income">
+  <div class="page-head">
+    <div class="eyebrow">Planner · Getting ready for tax time</div>
+    <h1>My Income &amp; Tax Planner</h1>
+    <p class="lede">Educational planning tool. Verify current tax rates, limits and eligibility using official sources.</p>
+    <p class="editnote"><span class="swatch"></span>Write in the light cells. Everything stays on this device.</p>
+  </div>
+
+  <details class="whw">
+    <summary>Why are we completing this — and when should we return to it?</summary>
+    <div class="whw-grid">
+      <div><h3>Why are we completing this?</h3><p>Tax time is easier when nothing about it is a surprise. This planner gathers what you earn, what has already been withheld, and the handful of things worth checking before you file.</p></div>
+      <div><h3>How will this help us?</h3><p>It turns a vague worry into a short list: the income that has to be reported, the amount to set aside, the question to ask, and the document you still need to find.</p></div>
+      <div><h3>When should we return to it?</h3><p>When a job starts or ends, when side income begins, before making an RRSP contribution, and once more a few weeks before you file.</p></div>
+      <div><h3>How is this different from the calculator?</h3><p>The <a href="#/tax">Income &amp; Tax calculator</a> estimates what you may owe. This planner records what you need to check and decide. Many people use the calculator first and write the outcome down here.</p></div>
+    </div>
+  </details>
+
+  <div id="plan-income"></div>
+
+  <div class="toolbar"><button onclick="MIT.saveReport()">Save as PDF report</button><button onclick="MIT.resetPlanner('income')">Clear this planner…</button></div>
+
+  <div class="reminder">
+    <div class="rlabel">My Financial Reminder</div>
+    <p>Money set aside before it is owed is not lost. It is a decision I have already made, so that a future month does not have to make it for me.</p>
+  </div>
+
+  <p class="important"><b>IMPORTANT</b> — This is an educational planning tool, not tax advice. Rates, limits and eligibility change. Confirm anything that matters using current CRA information or a qualified professional.</p>
+</div>
+
+<!-- ===================== HOME DECISION PLANNER ===================== -->
+<div class="page" id="page-housing">
+  <div class="page-head">
+    <div class="eyebrow">Planner · Renting, buying and moving</div>
+    <h1>My Home Decision Planner</h1>
+    <p class="lede">Compare housing choices against your budget, your goals, your flexibility and the total cost — not against the monthly payment alone.</p>
+    <p class="editnote"><span class="swatch"></span>Write in the light cells. Everything stays on this device.</p>
+  </div>
+
+  <details class="whw">
+    <summary>Why are we completing this — and when should we return to it?</summary>
+    <div class="whw-grid">
+      <div><h3>Why are we completing this?</h3><p>Housing is usually the largest decision a household makes, and the one most often decided on a single number. Set the options side by side and the real differences appear.</p></div>
+      <div><h3>How will this help us?</h3><p>It adds up the full monthly cost of each option and the cash needed up front, then asks the questions a payment cannot answer: how long you will stay, and what you would give up to afford it.</p></div>
+      <div><h3>When should we return to it?</h3><p>Before a lease renewal, before making an offer, when the household changes size, and any time a move starts to feel inevitable rather than chosen.</p></div>
+      <div><h3>What counts as an option?</h3><p>Anything you would genuinely consider: staying put, renting somewhere else, buying, or moving in with family. Leave a column empty if you only have two.</p></div>
+    </div>
+  </details>
+
+  <div id="plan-housing"></div>
+
+  <div class="toolbar"><button onclick="MIT.saveReport()">Save as PDF report</button><button onclick="MIT.resetPlanner('housing')">Clear this planner…</button></div>
+
+  <div class="reminder">
+    <div class="rlabel">My Financial Reminder</div>
+    <p>The right home is the one that still fits when something changes. A payment I can only just manage today is a decision that makes every other decision for me.</p>
+  </div>
+
+  <p class="important"><b>IMPORTANT</b> — This is an educational planning tool, not real estate, mortgage or lending advice. Confirm costs, rates and conditions with the lender, lawyer or professional involved.</p>
+</div>
+
+<!-- ================= HOUSEHOLD PROTECTION PLANNER ================= -->
+<div class="page" id="page-protect">
+  <div class="page-head">
+    <div class="eyebrow">Planner · Cover, gaps and what to check</div>
+    <h1>My Household Protection Planner</h1>
+    <p class="lede">A review to find the gaps and the questions. It is not an insurance recommendation, and nothing here is sold to you.</p>
+    <p class="editnote"><span class="swatch"></span>Write in the light cells. Everything stays on this device.</p>
+  </div>
+
+  <details class="whw">
+    <summary>Why are we completing this — and when should we return to it?</summary>
+    <div class="whw-grid">
+      <div><h3>Why are we completing this?</h3><p>Most households find out what their coverage does and does not include at the worst possible moment. Writing it down in advance is how that stops being true.</p></div>
+      <div><h3>How will this help us?</h3><p>It separates two different questions: what could go wrong, and what you already hold against it. The gap between those two columns is the part worth acting on.</p></div>
+      <div><h3>When should we return to it?</h3><p>Once a year, and whenever something changes that other people depend on — a birth, a move, a mortgage, a marriage, a new job, a business.</p></div>
+      <div><h3>What if I do not know the answer?</h3><p>Write that down too. "I do not know what my group benefits cover" is a finding, and it belongs in the last section as something to check.</p></div>
+    </div>
+  </details>
+
+  <div id="plan-protect"></div>
+
+  <div class="toolbar"><button onclick="MIT.saveReport()">Save as PDF report</button><button onclick="MIT.resetPlanner('protect')">Clear this planner…</button></div>
+
+  <div class="reminder">
+    <div class="rlabel">My Financial Reminder</div>
+    <p>Protection is not something I buy because I expect the worst. It is what lets the people who depend on me keep their footing if it ever arrives.</p>
+  </div>
+
+  <p class="important"><b>IMPORTANT</b> — This is an educational review, not insurance advice and not a recommendation to buy, keep or cancel any policy. Coverage terms vary. Read the policy, and speak to a licensed professional about your own situation.</p>
 </div>
 
 <!-- ============================== ABOUT ============================== -->
@@ -1228,6 +1394,13 @@ const MIT = (() => {
       budget: {
         month: "", reviewed: "", nextPay: "", view: "month",
         rows: {}, pay: { date: "", next: "", avail: {}, need: {} }
+      },
+      /* The planners hold whatever the reader writes, so they start empty
+         apart from the frequencies, which need a sensible starting choice. */
+      plan: {
+        income: { s0: { emp: { freq: "Monthly" }, job2: { freq: "Monthly" },
+          self: { freq: "Annual" }, other: { freq: "Annual" } } },
+        housing: {}, protect: {}
       }
     };
   }
@@ -1789,14 +1962,302 @@ const MIT = (() => {
     state.budget = defaults().budget; persist(); buildBudget(); renderBudget(); budgetView("month"); refreshInputs($("#page-budget"));
   }
 
+  /* ================= planners ================= */
+  /* The four calculators above work out a number. These three work out a
+     decision: they mostly gather sentences, with a few sums where the
+     workbooks had them. One engine renders all three from the descriptions
+     below rather than each carrying its own markup, because the difference
+     between them is the wording, not the behaviour. */
+
+  const PLAN_FREQ = { Weekly: 52, Biweekly: 26, "Semi-monthly": 24, Monthly: 12, Quarterly: 4, Annual: 1 };
+  const PRIORITIES = ["", "High", "Medium", "Low"];
+  const LEAD_W = "minmax(150px,1.5fr)";
+  const TEXT_W = "minmax(110px,1fr)";
+
+  const PLANNERS = {
+    income: {
+      report: "My Income & Tax Planner",
+      sections: [
+        {
+          title: "What does my income picture look like?", lead: "Income source", calc: "annualise",
+          cols: [
+            { k: "amt", l: "Gross amount", t: "money", w: "116px" },
+            { k: "freq", l: "Frequency", t: "select", opts: Object.keys(PLAN_FREQ), w: "128px" },
+            { k: "annual", l: "Annual estimate", t: "calc", w: "118px" },
+            { k: "wh", l: "Tax withheld", t: "money", w: "110px" },
+            { k: "note", l: "Notes", t: "text", w: TEXT_W }
+          ],
+          rows: [
+            { id: "emp", l: "Employment" },
+            { id: "job2", l: "Second job" },
+            { id: "self", l: "Self-employment / side income" },
+            { id: "other", l: "Other" }
+          ]
+        },
+        {
+          title: "What should I check before tax time?", lead: "Question",
+          cols: [
+            { k: "ans", l: "My answer", t: "text", w: TEXT_W },
+            { k: "amt", l: "Amount / estimate", t: "money", w: "120px" },
+            { k: "act", l: "Action needed", t: "text", w: TEXT_W },
+            { k: "ver", l: "What to verify", t: "static", w: "minmax(96px,.8fr)" },
+            { k: "note", l: "Notes", t: "text", w: TEXT_W }
+          ],
+          rows: [
+            { id: "total", l: "Estimated total annual income", calcCol: "amt", tot: true, skip: ["ans", "act", "note"] },
+            { id: "rrsp", l: "RRSP contribution planned", ver: "Contribution room" },
+            { id: "ded", l: "Other deductions or credits to review", ver: "Eligibility" },
+            { id: "emp2", l: "Do I have more than one employer?", ver: "TD1 / withholding" },
+            { id: "side", l: "Did I start side or self-employed income?", ver: "Tax / CPP set-aside" },
+            { id: "ben", l: "Could income changes affect benefits or credits?", ver: "Current program rules" },
+            { id: "rec", l: "Have I organized slips, receipts and records?", ver: "Documents" }
+          ]
+        },
+        {
+          kind: "prompts", title: "My decision",
+          rows: [
+            { id: "changed", l: "What changed?" },
+            { id: "verify", l: "What do I need to verify?" },
+            { id: "aside", l: "What money should I set aside?" },
+            { id: "ask", l: "What question should I ask a tax professional, if needed?" },
+            { id: "next", l: "My next step:" }
+          ]
+        }
+      ]
+    },
+
+    housing: {
+      report: "My Home Decision Report",
+      sections: [
+        {
+          title: "What does each option actually cost?", lead: "Question / cost", calc: "options",
+          cols: [
+            { k: "a", l: "Option A", t: "row", w: "minmax(96px,.9fr)" },
+            { k: "b", l: "Option B", t: "row", w: "minmax(96px,.9fr)" },
+            { k: "c", l: "Option C", t: "row", w: "minmax(96px,.9fr)" },
+            { k: "matters", l: "What matters most", t: "text", w: TEXT_W },
+            { k: "note", l: "Notes", t: "text", w: TEXT_W }
+          ],
+          rows: [
+            { id: "rentbuy", l: "Rent or buy?", t: "text" },
+            { id: "pay", l: "Monthly rent / mortgage payment", t: "money", g: "m" },
+            { id: "proptax", l: "Property tax / condo fees", t: "money", g: "m" },
+            { id: "util", l: "Utilities", t: "money", g: "m" },
+            { id: "ins", l: "Insurance", t: "money", g: "m" },
+            { id: "maint", l: "Maintenance / repairs allowance", t: "money", g: "m" },
+            { id: "commute", l: "Parking / commuting difference", t: "money", g: "m" },
+            { id: "down", l: "Down payment", t: "money", g: "u" },
+            { id: "closing", l: "Closing / moving costs", t: "money", g: "u" },
+            { id: "upother", l: "Other upfront costs", t: "money", g: "u" },
+            { id: "totm", l: "Estimated total monthly housing cost", t: "calc", sum: "m", tot: true, skip: ["matters", "note"] },
+            { id: "totu", l: "Estimated upfront cash needed", t: "calc", sum: "u", tot: true, skip: ["matters", "note"] },
+            { id: "stay", l: "How long do I expect to stay?", t: "text" }
+          ]
+        },
+        {
+          title: "Does the option fit the life I want?", lead: "Question",
+          cols: [
+            { k: "a", l: "Option A", t: "text", w: "minmax(96px,.9fr)" },
+            { k: "b", l: "Option B", t: "text", w: "minmax(96px,.9fr)" },
+            { k: "c", l: "Option C", t: "text", w: "minmax(96px,.9fr)" },
+            { k: "matters", l: "What matters most", t: "text", w: TEXT_W },
+            { k: "note", l: "Notes", t: "text", w: TEXT_W }
+          ],
+          rows: [
+            { id: "flex", l: "How important is flexibility?" },
+            { id: "save", l: "How does this affect saving and investing?" },
+            { id: "goals", l: "How does this affect other goals?" },
+            { id: "shock", l: "Could I handle a major repair or payment increase?" },
+            { id: "place", l: "Does the location fit work, school and family needs?" },
+            { id: "income", l: "Would this still feel comfortable if income changed?" }
+          ]
+        },
+        {
+          kind: "prompts", title: "My decision",
+          rows: [
+            { id: "best", l: "The option that best supports the life I want to build is:" },
+            { id: "tradeoff", l: "The biggest tradeoff is:" },
+            { id: "confirm", l: "Before deciding, I still need to confirm:" },
+            { id: "giveup", l: "What I would give up to make this cost work:" },
+            { id: "next", l: "My next step:" }
+          ]
+        }
+      ]
+    },
+
+    protect: {
+      report: "My Household Protection Review",
+      sections: [
+        {
+          title: "Where is my household exposed?", lead: "Risk / need",
+          cols: [
+            { k: "cur", l: "Current protection", t: "text", w: TEXT_W },
+            { k: "gap", l: "Possible gap", t: "text", w: TEXT_W },
+            { k: "pri", l: "Priority", t: "select", opts: PRIORITIES, w: "108px" },
+            { k: "who", l: "Who / what to check", t: "text", w: TEXT_W },
+            { k: "note", l: "Notes", t: "text", w: TEXT_W }
+          ],
+          rows: [
+            { id: "incloss", l: "Loss of income due to illness or injury" },
+            { id: "death", l: "Death of an income earner" },
+            { id: "critical", l: "Critical illness" },
+            { id: "home", l: "Home / belongings loss" },
+            { id: "liab", l: "Personal liability" },
+            { id: "auto", l: "Vehicle loss / liability" },
+            { id: "cash", l: "Emergency cash for deductibles / waiting periods" },
+            { id: "debt", l: "Debt or mortgage obligations" },
+            { id: "depend", l: "Dependants / caregiving needs" }
+          ]
+        },
+        {
+          title: "What protection do I already have?", lead: "Coverage",
+          cols: [
+            { k: "prov", l: "Provider", t: "text", w: TEXT_W },
+            { k: "amt", l: "Coverage amount", t: "money", w: "120px" },
+            { k: "ded", l: "Deductible / waiting period", t: "text", w: TEXT_W },
+            { k: "key", l: "Beneficiary / key detail", t: "text", w: TEXT_W },
+            { k: "review", l: "Review date", t: "text", w: "minmax(92px,.7fr)" }
+          ],
+          rows: [
+            { id: "life", l: "Life insurance" },
+            { id: "disab", l: "Disability insurance" },
+            { id: "crit", l: "Critical illness insurance" },
+            { id: "prop", l: "Home / condo / tenant insurance" },
+            { id: "auto", l: "Auto insurance" },
+            { id: "group", l: "Workplace / group benefits" },
+            { id: "creditor", l: "Mortgage / creditor insurance" },
+            { id: "other", l: "Other" }
+          ]
+        },
+        {
+          kind: "prompts", title: "My protection priorities",
+          rows: [
+            { id: "gap", l: "The most important gap I need to review is:" },
+            { id: "have", l: "The protection I already have and want to track is:" },
+            { id: "read", l: "The document or policy I need to read is:" },
+            { id: "contact", l: "The professional or provider I need to contact is:" },
+            { id: "next", l: "My next step:" }
+          ]
+        }
+      ]
+    }
+  };
+
+  /* ---------- building ---------- */
+  function planCell(key, si, row, col) {
+    const path = `plan.${key}.s${si}.${row.id}.${col.k}`;
+    const id = `pc-${key}-${si}-${row.id}-${col.k}`;
+    const mob = ` data-mob="${esc(col.l)}"`;
+    // "row" columns take their type from the row, so one table can hold both
+    // a dollar figure and a sentence.
+    const t = col.t === "row" ? (row.t || "text") : col.t;
+
+    if (row.skip && row.skip.includes(col.k)) return `<span${mob}></span>`;
+    if (t === "static") return `<span class="pstatic"${mob}>${esc(row.ver || "")}</span>`;
+    if (t === "calc" || row.calcCol === col.k) return `<span class="pcalc" id="${id}"${mob}>—</span>`;
+    if (t === "select") {
+      return `<span${mob}><select id="${id}" data-path="${path}" aria-label="${esc(row.l)} — ${esc(col.l)}">` +
+        col.opts.map(o => `<option value="${esc(o)}">${esc(o === "" ? "—" : o)}</option>`).join("") + `</select></span>`;
+    }
+    if (t === "money") {
+      return `<span class="inwrap"${mob}><span class="affix pre">$</span>` +
+        `<input type="text" class="money" id="${id}" data-path="${path}" data-kind="money" inputmode="decimal" aria-label="${esc(row.l)} — ${esc(col.l)}"></span>`;
+    }
+    return `<span${mob}><input type="text" id="${id}" data-path="${path}" aria-label="${esc(row.l)} — ${esc(col.l)}"></span>`;
+  }
+
+  function planGrid(key, s, si, n) {
+    const tpl = [s.lead ? LEAD_W : "", ...s.cols.map(c => c.w)].filter(Boolean).join(" ");
+    const head = `<div class="phead" style="grid-template-columns:${tpl}"><span>${esc(s.lead)}</span>` +
+      s.cols.map(c => `<span>${esc(c.l)}</span>`).join("") + `</div>`;
+    const rows = s.rows.map(row =>
+      `<div class="prow${row.tot ? " tot" : ""}" style="grid-template-columns:${tpl}">` +
+      `<span class="rlabel">${esc(row.l)}</span>` +
+      s.cols.map(c => planCell(key, si, row, c)).join("") + `</div>`).join("");
+    return `<section class="card"><div class="sec-head"><span class="sec-num">${n}</span><h2>${esc(s.title)}</h2></div>
+      <div class="ptable">${head}${rows}</div></section>`;
+  }
+
+  function planPrompts(key, s, si, n) {
+    const rows = s.rows.map(row => {
+      const path = `plan.${key}.s${si}.${row.id}`;
+      const id = `pc-${key}-${si}-${row.id}`;
+      return `<div class="prompt"><label for="${id}">${esc(row.l)}</label>
+        <textarea id="${id}" data-path="${path}" rows="2"></textarea></div>`;
+    }).join("");
+    return `<section class="card"><div class="sec-head"><span class="sec-num">${n}</span><h2>${esc(s.title)}</h2></div>${rows}</section>`;
+  }
+
+  function buildPlanners() {
+    for (const key of Object.keys(PLANNERS)) {
+      const host = $("#plan-" + key);
+      if (!host) continue;
+      host.innerHTML = PLANNERS[key].sections
+        .map((s, si) => s.kind === "prompts" ? planPrompts(key, s, si, si + 1) : planGrid(key, s, si, si + 1))
+        .join("");
+    }
+  }
+
+  /* ---------- results ---------- */
+  function planVal(key, si, rowId, colK) {
+    const v = getPath(`plan.${key}.s${si}.${rowId}.${colK}`);
+    return typeof v === "number" && isFinite(v) ? v : null;
+  }
+  function setCalc(key, si, rowId, colK, v) {
+    const el = document.getElementById(`pc-${key}-${si}-${rowId}-${colK}`);
+    if (el) el.textContent = v == null ? "—" : money(v);
+  }
+
+  /** Annual estimate per income row, and the total they add up to. */
+  function incomeAnnual(rowId) {
+    const amt = planVal("income", 0, rowId, "amt");
+    const freq = getPath(`plan.income.s0.${rowId}.freq`);
+    const mult = PLAN_FREQ[freq];
+    return amt == null || !mult ? null : amt * mult;
+  }
+
+  function renderPlanner(key) {
+    PLANNERS[key].sections.forEach((s, si) => {
+      if (s.calc === "annualise") {
+        s.rows.forEach(row => setCalc(key, si, row.id, "annual", incomeAnnual(row.id)));
+      }
+      if (s.calc === "options") {
+        // Each option column totals its own monthly and upfront groups.
+        for (const col of s.cols.filter(c => c.t === "row")) {
+          for (const totRow of s.rows.filter(r => r.sum)) {
+            const parts = s.rows.filter(r => r.g === totRow.sum)
+              .map(r => planVal(key, si, r.id, col.k)).filter(v => v != null);
+            setCalc(key, si, totRow.id, col.k, parts.length ? parts.reduce((a, b) => a + b, 0) : null);
+          }
+        }
+      }
+    });
+    if (key === "income") {
+      const parts = PLANNERS.income.sections[0].rows.map(r => incomeAnnual(r.id)).filter(v => v != null);
+      setCalc("income", 1, "total", "amt", parts.length ? parts.reduce((a, b) => a + b, 0) : null);
+    }
+  }
+
+  function resetPlanner(key) {
+    const names = { income: "Income & Tax Planner", housing: "Home Decision Planner", protect: "Household Protection Planner" };
+    if (!confirm(`Clear everything you have written in the ${names[key]} on this device?`)) return;
+    state.plan[key] = defaults().plan[key];
+    persist();
+    refreshInputs($("#page-" + key));
+    renderPlanner(key);
+  }
+
   /* ================= shell ================= */
-  const ROUTES = ["home", "budget", "borrow", "savings", "tax", "about"];
+  const ROUTES = ["home", "budget", "borrow", "savings", "tax", "income", "housing", "protect", "about"];
   const TITLES = { home: "Money Is a Tool Calculators", budget: "Household Budget — Money Is a Tool",
-    borrow: "Borrowing & Payment — Money Is a Tool", savings: "Savings & Goal — Money Is a Tool", tax: "Income & Tax — Money Is a Tool", about: "About — Money Is a Tool" };
-  /* What a saved PDF report is called at the top of the page. Only the four
-     calculators produce a report; Home and About are not worth printing. */
+    borrow: "Borrowing & Payment — Money Is a Tool", savings: "Savings & Goal — Money Is a Tool", tax: "Income & Tax — Money Is a Tool",
+    income: "Income & Tax Planner — Money Is a Tool", housing: "Home Decision Planner — Money Is a Tool",
+    protect: "Household Protection Planner — Money Is a Tool", about: "About — Money Is a Tool" };
+  /* What a saved PDF report is called at the top of the page. Every tool
+     produces one; Home and About are not worth printing. */
   const REPORTS = { budget: "My Monthly Household Budget", borrow: "My Borrowing & Payment Report",
-    savings: "My Savings & Goal Report", tax: "My Income & Tax Planning Report" };
+    savings: "My Savings & Goal Report", tax: "My Income & Tax Planning Report",
+    income: PLANNERS.income.report, housing: PLANNERS.housing.report, protect: PLANNERS.protect.report };
   function fillPrintHead() {
     const head = $("#printhead");
     if (!head) return;
@@ -1820,8 +2281,14 @@ const MIT = (() => {
   function beforeReport() {
     fillPrintHead();
     $$("details.bgroup, details.tbl").forEach((g) => { if (!g.open) { printOpened.push(g); g.open = true; } });
-    const rows = $$(".brow");
-    const filled = (row) => [...row.querySelectorAll("input")].some((i) => i.value.trim() !== "");
+    /* Only the page being printed matters: a filled-in budget must not blank
+       out an empty planner that is the one actually going on paper. */
+    const rows = $$(".brow, .prow", $(".page.active") || document);
+    /* A planner's total row holds no input at all, only a worked-out figure.
+       Judging it by its inputs would drop the very line the report is for. */
+    const filled = (row) =>
+      [...row.querySelectorAll("input, textarea")].some((i) => i.value.trim() !== "") ||
+      [...row.querySelectorAll(".pcalc")].some((c) => c.textContent.trim() !== "—" && c.textContent.trim() !== "");
     const anyFilledAnywhere = rows.some(filled);
     rows.forEach((row) => row.classList.toggle("blank-on-paper", anyFilledAnywhere && !filled(row)));
     $$("details.bgroup").forEach((g) => {
@@ -1856,6 +2323,7 @@ const MIT = (() => {
     else if (active.id === "page-savings") renderSavings();
     else if (active.id === "page-tax") renderTax();
     else if (active.id === "page-budget") renderBudget();
+    else if (active.id.startsWith("page-") && PLANNERS[active.id.slice(5)]) renderPlanner(active.id.slice(5));
   }
   function resetTool(which) {
     const names = { borrow: "Borrowing & Payment calculator", savings: "Savings & Goal calculator", tax: "Income & Tax calculator (your tax-year figures are kept)" };
@@ -1866,7 +2334,7 @@ const MIT = (() => {
     persist(); refreshInputs($("#page-" + which)); recalcActive();
   }
   function clearAll() {
-    if (!confirm("Clear everything you have entered on this device? This resets all four calculators and the budget.")) return;
+    if (!confirm("Clear everything you have entered on this device? This resets every calculator, the budget and all three planners.")) return;
     store.clear(); state = defaults();
     buildStatic(); route();
   }
@@ -1878,6 +2346,7 @@ const MIT = (() => {
     ["#bo-freq", "#oa-freq", "#ob-freq"].forEach(s => fillSelect($(s), Object.keys(E.PAY_FREQ)));
     fillSelect($("#sg-purpose"), SAVE_PURPOSES); fillSelect($("#gg-purpose"), SAVE_PURPOSES);
     ["#sg-freq", "#gg-freq"].forEach(s => fillSelect($(s), Object.keys(E.SAVE_FREQ)));
+    buildPlanners();
     bindAll(document);
     refreshInputs(document);
     buildTaxEditor();
@@ -1905,7 +2374,7 @@ const MIT = (() => {
     addEventListener("load", () => { navigator.serviceWorker.register("./sw.js").catch(() => {}); });
   }
 
-  return { budgetView, resetBudget, resetTool, resetTaxData, clearAll, fitRelink, saveReport };
+  return { budgetView, resetBudget, resetTool, resetPlanner, resetTaxData, clearAll, fitRelink, saveReport };
 })();
 </script>
 </body>
