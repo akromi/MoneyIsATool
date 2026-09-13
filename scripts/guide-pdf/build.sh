@@ -14,8 +14,18 @@ set -euo pipefail
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 root="$(cd "$here/../.." && pwd)"
 
-src="${1:-$root/TECHNICAL-GUIDE.md}"
-out="${2:-$root/TECHNICAL-GUIDE.pdf}"
+# Both arguments are resolved against the directory the caller was standing in,
+# because this script cds into its own folder before running node. Without this,
+# a relative argument would be checked here and then looked for over there.
+abspath() {
+  case "$1" in
+    /*) printf '%s\n' "$1" ;;
+    *)  printf '%s\n' "$PWD/$1" ;;
+  esac
+}
+
+src="$(abspath "${1:-$root/TECHNICAL-GUIDE.md}")"
+out="$(abspath "${2:-$root/TECHNICAL-GUIDE.pdf}")"
 html="$here/.guide.html"
 err="$here/.render-error"
 trap 'rm -f "$html" "$err"' EXIT
