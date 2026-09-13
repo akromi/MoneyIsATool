@@ -67,17 +67,15 @@ variables, never in the code.
 
 ### GitHub Pages, now retired
 
-The site was served by GitHub Pages until the move to Vercel. The workflow that
-published it and the Pages-specific `CNAME` file have been removed, so nothing
-force-pushes the `gh-pages` branch any more and no new stale commits appear for
-Vercel to try to build.
+The site was served by GitHub Pages until the move to Vercel. That is finished:
+the publishing workflow and the Pages-specific `CNAME` file were removed from
+the repository, the custom domain was released back from Pages, the site was
+unpublished, and the `gh-pages` branch was deleted. Nothing is left running.
 
-Two pieces of tidying are left, neither urgent, and both done by hand:
-
-- Set **Settings → Pages → Source** to *None*, so nothing tries to serve the old
-  copy.
-- Delete the `gh-pages` branch. It still exists, holding the last copy Pages
-  published.
+If you ever need to check, **Settings → Pages** should not show a live site. Note
+that this screen has no "Source: None" option — GitHub uses a red **Unpublish
+site** button at the top instead, and the custom domain is released with the
+**Remove** button beside it.
 
 ---
 
@@ -264,6 +262,19 @@ files are only ever visible to members of an active school licence.
 app.moneyisatool.ca/admin → "Create licence". Enter the school, the
 administrator's email, and the number of teacher seats. The administrator does
 not consume a seat. They receive an invite code to pass to their teachers.
+
+### Renew, extend or end a school licence
+
+app.moneyisatool.ca/admin → the school licences list → the date box beside the
+licence's status. Set a new date to renew, or clear it so the licence never
+expires. Teachers keep their places and nobody has to rejoin.
+
+Suspending, on the same row, is the abrupt version: it removes access for
+everyone on the licence immediately, the administrator included. Reactivating
+gives it back — but only if the licence has not also passed its expiry date in
+the meantime. A licence has to be both active and unexpired, so if the date has
+gone by, set a new one (or clear it) as well, or the row will still read
+*Expired* and nobody will get in.
 
 ### Add or remove an owner admin
 
