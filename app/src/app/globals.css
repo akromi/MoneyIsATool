@@ -88,6 +88,16 @@ table{width:100%;border-collapse:collapse;font-size:.93rem}
 th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
 th{color:var(--ink-faint);font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em}
 .tablewrap{overflow-x:auto}
+/* Question-and-answer table: keep the question column from wrapping to a sliver,
+   and stack the pairs rather than squeezing two columns onto a phone. */
+table.qa td:first-child{width:32%;min-width:170px;font-weight:600}
+table.qa td:last-child{color:var(--ink-soft)}
+@media(max-width:620px){
+  table.qa,table.qa tbody,table.qa tr,table.qa td{display:block;width:auto}
+  table.qa thead{display:none}
+  table.qa tr{border-bottom:1px solid var(--line);padding:6px 0}
+  table.qa td{border:0;padding:2px 0;min-width:0}
+}
 code,.code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em;background:var(--surface2);
   padding:2px 6px;border-radius:6px;border:1px solid var(--line);word-break:break-all}
 .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.78rem;font-weight:600;background:var(--brand-wash);color:var(--brand-deep)}

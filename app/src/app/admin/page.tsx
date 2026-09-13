@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Shell from "@/components/Shell";
 import { requireOwner } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -23,7 +24,8 @@ export default async function AdminPage() {
   return (
     <Shell current="admin">
       <div className="hero"><div className="kicker">Owner</div><h1>Administration</h1>
-        <p className="muted">{purchases ?? 0} individual purchases · {(licences || []).length} school licences · {open.length} open licence requests</p></div>
+        <p className="muted">{purchases ?? 0} individual purchases · {(licences || []).length} school licences · {open.length} open licence requests</p>
+        <p><Link href="/admin/help">How this page works, and what to say when somebody writes in →</Link></p></div>
 
       <div className="grid">
         <section className="card"><h2>Create a school licence</h2><LicenceForm /></section>
