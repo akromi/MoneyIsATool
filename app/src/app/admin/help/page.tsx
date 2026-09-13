@@ -76,7 +76,9 @@ export default async function AdminHelpPage() {
             own, with nothing for you to do. You can change the date at any time from the school licences
             list, which is how a renewal is done.</li>
           <li><b>Suspending</b> removes access for everyone on the licence straight away, the administrator
-            included. Making it active again restores them. Nobody has to rejoin.</li>
+            included. Making it active again restores them, and nobody has to rejoin &mdash; but a licence has
+            to be both active and unexpired, so if the expiry date has gone by in the meantime, give it a new
+            date as well or the row will still read <i>Expired</i>.</li>
           <li><b>When the seats are full</b>, the next teacher to try the code is told so by name, for example
             &ldquo;All 10 teacher seats at Windsor High are taken&rdquo;. They are not left guessing.</li>
         </ul>

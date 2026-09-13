@@ -270,8 +270,11 @@ licence's status. Set a new date to renew, or clear it so the licence never
 expires. Teachers keep their places and nobody has to rejoin.
 
 Suspending, on the same row, is the abrupt version: it removes access for
-everyone on the licence immediately, the administrator included, and
-reactivating restores them.
+everyone on the licence immediately, the administrator included. Reactivating
+gives it back — but only if the licence has not also passed its expiry date in
+the meantime. A licence has to be both active and unexpired, so if the date has
+gone by, set a new one (or clear it) as well, or the row will still read
+*Expired* and nobody will get in.
 
 ### Add or remove an owner admin
 
