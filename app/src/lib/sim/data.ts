@@ -172,3 +172,40 @@ export async function standingsFor(
   const mine = ranked.find((r) => r.isMe);
   return mine && !top.some((r) => r.isMe) ? [...top, mine] : top;
 }
+
+export type StoredPrice = {
+  instrument_id: string;
+  close: number;
+  as_of: string;
+  source: string;
+  entered_at: string | null;
+};
+
+/**
+ * The newest stored close per instrument, with where it came from.
+ *
+ * `latestPrices` deliberately returns only what a trade needs. This is for the
+ * teacher's own page, which has to show whether a number is today's real close
+ * somebody typed in, or a leftover from the generated series.
+ */
+export async function latestStoredPrices(): Promise<Map<string, StoredPrice>> {
+  const { data } = await createAdminClient()
+    .from("sim_prices")
+    .select("instrument_id, close, as_of, source, entered_at")
+    .order("as_of", { ascending: false });
+  const out = new Map<string, StoredPrice>();
+  for (const row of data || []) {
+    if (!out.has(row.instrument_id)) out.set(row.instrument_id, { ...row, close: Number(row.close) } as StoredPrice);
+  }
+  return out;
+}
+
+/** Today where the students are, not where the server is. */
+export function tradingDayInToronto(now = new Date()): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Toronto",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(now);
+}

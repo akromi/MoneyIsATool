@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { getEntitlements } from "@/lib/entitlements";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { classById } from "@/lib/sim/data";
+import { classById, latestStoredPrices, listInstruments, tradingDayInToronto } from "@/lib/sim/data";
+import { money } from "@/lib/sim/engine";
 import { hashPasscode, newJoinCode, newPasscode, newSalt } from "@/lib/sim/session";
 
 export type TeachState = { error?: string; ok?: string };
@@ -111,4 +112,68 @@ export async function regenerateJoinCode(form: FormData): Promise<void> {
   await ownClass(classId);
   await createAdminClient().from("sim_classes").update({ join_code: newJoinCode() }).eq("id", classId);
   revalidatePath(`/teach/${classId}`);
+}
+
+/**
+ * Records the day's closing prices, typed in by a teacher from a real quote.
+ *
+ * One set of prices serves every class, because the closing price of a share
+ * on a given day is one fact, not a per-class opinion. That also means a
+ * mistyped number reaches somebody else's students, so two things guard it: a
+ * move of more than half the last price has to be confirmed, and every row
+ * records who entered it.
+ *
+ * Blank fields are skipped rather than treated as zero — a teacher who follows
+ * three of the five instruments should not have to invent the other two.
+ */
+export async function setPrices(_prev: TeachState, form: FormData): Promise<TeachState> {
+  const user = await requireTeacher();
+  const asOf = String(form.get("as_of") || "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(asOf)) return { error: "Pick the trading day these closes are from." };
+  if (asOf > tradingDayInToronto()) return { error: "That date is in the future." };
+  const allowLargeMove = form.get("allow_large_move") === "on";
+
+  const admin = createAdminClient();
+  const instruments = await listInstruments();
+  const previous = await latestStoredPrices();
+
+  const rows: { instrument_id: string; as_of: string; close: number; source: string; entered_by: string; entered_at: string }[] = [];
+  const queried: string[] = [];
+
+  for (const instrument of instruments) {
+    const raw = String(form.get(`price_${instrument.id}`) || "").replace(/[$,\s]/g, "");
+    if (raw === "") continue;
+    const close = Number(raw);
+    if (!isFinite(close) || close <= 0) return { error: `${instrument.symbol}: enter a price above zero, or leave it blank.` };
+
+    // A decimal point in the wrong place is the mistake that matters here: the
+    // trades placed against it cannot be taken back off an append-only ledger.
+    const last = previous.get(instrument.id);
+    if (last && !allowLargeMove && Math.abs(close - last.close) / last.close > 0.5) {
+      queried.push(`${instrument.symbol} ${money(last.close)} → ${money(close)}`);
+    }
+
+    rows.push({
+      instrument_id: instrument.id,
+      as_of: asOf,
+      close,
+      source: "manual",
+      entered_by: user.id,
+      entered_at: new Date().toISOString(),
+    });
+  }
+
+  if (!rows.length) return { error: "Enter at least one closing price." };
+  if (queried.length) {
+    return {
+      error: `That is a move of more than half: ${queried.join(", ")}. Check the decimal point, then tick the box below and save again if it is right.`,
+    };
+  }
+
+  const { error } = await admin.from("sim_prices").upsert(rows, { onConflict: "instrument_id,as_of" });
+  if (error) return { error: "Those prices could not be saved. Try again." };
+
+  revalidatePath("/teach/prices");
+  revalidatePath("/teach");
+  return { ok: `Saved ${rows.length} closing price${rows.length === 1 ? "" : "s"} for ${asOf}. Trades placed now use them.` };
 }

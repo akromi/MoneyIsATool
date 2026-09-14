@@ -4,7 +4,7 @@ import Shell from "@/components/Shell";
 import { requireTeacher } from "../actions";
 import { AddStudentForm, CopyButton, ResetPasscodeForm } from "../Forms";
 import { regenerateJoinCode, setClassSettings } from "../actions";
-import { classById, portfolioFor, studentsIn, tradesFor } from "@/lib/sim/data";
+import { classById, latestStoredPrices, portfolioFor, studentsIn, tradesFor, tradingDayInToronto } from "@/lib/sim/data";
 import { REASONS, SELL_REASONS, money, qty } from "@/lib/sim/engine";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { siteUrl } from "@/lib/env";
@@ -39,6 +39,12 @@ export default async function ClassPage({ params }: { params: Promise<{ classId:
      shown here, so a teacher could set a class up and have nothing to put on
      the board. Written out in full, because it is going to be read aloud or
      copied into a class post, not clicked. */
+  /* Every value on this page is only as current as the newest close held, and
+     a teacher reading a ranking deserves to know when that was. */
+  const prices = await latestStoredPrices();
+  const pricedTo = [...prices.values()].map((p) => p.as_of).sort().pop();
+  const pricesStale = !pricedTo || pricedTo < tradingDayInToronto();
+
   const joinUrl = `${siteUrl()}/sim/join`;
   const handout = [
     `Go to ${joinUrl}`,
@@ -56,7 +62,11 @@ export default async function ClassPage({ params }: { params: Promise<{ classId:
           Join code <code>{klass.join_code}</code> · {students.length} student{students.length === 1 ? "" : "s"} ·
           {" "}starting amount {money(klass.starting_cash)}
         </p>
-        <p><Link href="/teach">← All classes</Link></p>
+        <p className={pricesStale ? "" : "muted"}>
+          Valued at closing prices from <b>{pricedTo || "— none entered"}</b>.{" "}
+          <Link href="/teach/prices">{pricesStale ? "Enter today\u2019s closes" : "Update them"}</Link>
+        </p>
+        <p><Link href="/teach">← All classes</Link> · <Link href="/teach/help">Running the Challenge</Link></p>
       </div>
 
       <section className="card">
