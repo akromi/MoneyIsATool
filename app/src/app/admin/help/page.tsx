@@ -103,8 +103,10 @@ export default async function AdminHelpPage() {
             </tr>
             <tr>
               <td>The sign-in email never arrived</td>
-              <td>Ask them to check junk mail first, then request a new link. Each link is single use and only
-                works in the browser that asked for it, so an old one will not work twice.</td>
+              <td>Ask them to check junk mail first, then request a new link. Each link is single use and
+                expires, so an old one will not work twice &mdash; but a fresh one can be opened on a different
+                device from the one that asked for it, so that is not the cause. If nothing arrives at all, the
+                delivery is the thing to look at.</td>
             </tr>
             <tr>
               <td>Our teachers cannot join</td>
