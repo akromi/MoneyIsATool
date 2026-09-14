@@ -116,7 +116,17 @@ function convert(md) {
   return { body: out.join("\n"), toc };
 }
 
-const md = fs.readFileSync(process.argv[2], "utf8");
+const raw = fs.readFileSync(process.argv[2], "utf8");
+
+/* The line under the contents says where the living version of this document
+   is, which differs per document — so the document says it, rather than the
+   converter assuming. Written as an HTML comment so it stays invisible
+   anywhere else the Markdown is read. */
+const noteMatch = raw.match(/<!--\s*note:\s*([\s\S]*?)-->/);
+const note = noteMatch
+  ? noteMatch[1].trim().replace(/\s+/g, " ")
+  : "A printed copy. The version that is kept up to date is `TECHNICAL-GUIDE.md` in the repository — check there before following anything that looks out of date.";
+const md = raw.replace(/<!--\s*note:[\s\S]*?-->/, "");
 const { body, toc } = convert(md);
 const css = fs.readFileSync(__dirname + "/guide.css", "utf8");
 
@@ -124,8 +134,7 @@ const css = fs.readFileSync(__dirname + "/guide.css", "utf8");
 const contents = `<nav class="toc"><h2 class="tochead">Contents</h2><ol>
 ${toc.map((t) => `<li><a href="#${t.id}">${esc(t.text.replace(/^\d+\.\s*/, ""))}</a></li>`).join("\n")}
 </ol>
-<p class="note">A printed copy. The version that is kept up to date is <code>TECHNICAL-GUIDE.md</code>
-in the repository — check there before following anything that looks out of date.</p></nav>
+<p class="note">${inline(esc(note))}</p></nav>
 `;
 const anchor = body.indexOf('<h2 id=');
 if (anchor < 0) throw new Error("no section heading found; contents block has nowhere to go");

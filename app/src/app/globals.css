@@ -54,6 +54,11 @@ main{max-width:1040px;margin:0 auto;padding:28px 20px 60px}
 .card.plain{box-shadow:none}
 /* What a teacher reads out or writes on the board: the label small and quiet,
    the thing itself large enough to read from the back of a classroom. */
+/* A list read as guidance rather than scanned as data: room between the items,
+   none inside one. */
+.tight{margin:10px 0;padding-left:20px}
+.tight li{margin:0 0 10px}
+.tight li:last-child{margin-bottom:0}
 .handout{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;align-items:baseline;margin:14px 0}
 .handout dt{font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--brass);font-weight:700}
 .handout dd{margin:0;font-size:1.15rem;font-weight:600;overflow-wrap:anywhere}
@@ -83,6 +88,10 @@ label .hint{font-weight:400;color:var(--ink-faint);font-size:.85rem}
 input,textarea,select{font:inherit;padding:9px 11px;border:1px solid var(--input-edge);border-radius:8px;
   background:var(--input-bg);color:var(--ink);width:100%}
 input:focus,textarea:focus,select:focus{outline:2px solid var(--input-focus);outline-offset:1px}
+/* A tick box is not a field to be filled in. The width:100% above stretched its
+   hit box the whole width of the row and left the glyph floating in the middle
+   of it, nowhere near the words it belongs to. */
+input[type=checkbox],input[type=radio]{width:auto;flex:none;padding:0;accent-color:var(--brand)}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 /* Side-by-side fields: stretch the labels to one height and pin each control to the
    bottom so the inputs line up even when only one label carries a hint. */

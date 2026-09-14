@@ -4,7 +4,7 @@ import Shell from "@/components/Shell";
 import { requireTeacher } from "../actions";
 import { AddStudentForm, CopyButton, ResetPasscodeForm } from "../Forms";
 import { regenerateJoinCode, setClassSettings } from "../actions";
-import { classById, portfolioFor, studentsIn, tradesFor } from "@/lib/sim/data";
+import { classById, lastTradingDay, latestStoredPrices, listInstruments, portfolioFor, priceFreshness, studentsIn, tradesFor } from "@/lib/sim/data";
 import { REASONS, SELL_REASONS, money, qty } from "@/lib/sim/engine";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { siteUrl } from "@/lib/env";
@@ -39,6 +39,12 @@ export default async function ClassPage({ params }: { params: Promise<{ classId:
      shown here, so a teacher could set a class up and have nothing to put on
      the board. Written out in full, because it is going to be read aloud or
      copied into a class post, not clicked. */
+  /* Every value on this page is only as current as its STALEST holding, so the
+     oldest close is what gets reported. Judging it by the newest let one
+     instrument entered today speak for four that had not been. */
+  const [prices, allInstruments] = await Promise.all([latestStoredPrices(), listInstruments()]);
+  const fresh = priceFreshness(prices, allInstruments.map((i) => i.id), lastTradingDay());
+
   const joinUrl = `${siteUrl()}/sim/join`;
   const handout = [
     `Go to ${joinUrl}`,
@@ -56,7 +62,13 @@ export default async function ClassPage({ params }: { params: Promise<{ classId:
           Join code <code>{klass.join_code}</code> · {students.length} student{students.length === 1 ? "" : "s"} ·
           {" "}starting amount {money(klass.starting_cash)}
         </p>
-        <p><Link href="/teach">← All classes</Link></p>
+        <p className={fresh.stale ? "" : "muted"}>
+          Valued at closing prices from{" "}
+          <b>{!fresh.oldest ? "— none entered" : fresh.mixed ? `${fresh.oldest} — ${fresh.newest}` : fresh.oldest}</b>
+          {fresh.missing && <> (one or more instruments have no price at all)</>}.{" "}
+          <Link href="/teach/prices">{fresh.stale ? "Enter the latest closes" : "Update them"}</Link>
+        </p>
+        <p><Link href="/teach">← All classes</Link> · <Link href="/teach/help">Running the Challenge</Link></p>
       </div>
 
       <section className="card">

@@ -38,15 +38,23 @@ export async function listInstruments(): Promise<Instrument[]> {
   return (data || []) as Instrument[];
 }
 
-/** The most recent close per instrument — the price a trade placed now will use. */
-export async function latestPrices(): Promise<Map<string, { close: number; as_of: string }>> {
+/**
+ * The most recent close per instrument — the price a trade placed now will use.
+ *
+ * The source travels with it, because the trade has to record whether the
+ * number it paid was a real close somebody typed in or one of the generated
+ * ones, and sim_trades cannot be corrected afterwards.
+ */
+export async function latestPrices(): Promise<Map<string, { close: number; as_of: string; source: string }>> {
   const { data } = await createAdminClient()
     .from("sim_prices")
-    .select("instrument_id, close, as_of")
+    .select("instrument_id, close, as_of, source")
     .order("as_of", { ascending: false });
-  const out = new Map<string, { close: number; as_of: string }>();
+  const out = new Map<string, { close: number; as_of: string; source: string }>();
   for (const row of data || []) {
-    if (!out.has(row.instrument_id)) out.set(row.instrument_id, { close: Number(row.close), as_of: row.as_of });
+    if (!out.has(row.instrument_id)) {
+      out.set(row.instrument_id, { close: Number(row.close), as_of: row.as_of, source: row.source || "seeded" });
+    }
   }
   return out;
 }
@@ -171,4 +179,120 @@ export async function standingsFor(
   const top = ranked.slice(0, 3);
   const mine = ranked.find((r) => r.isMe);
   return mine && !top.some((r) => r.isMe) ? [...top, mine] : top;
+}
+
+export type StoredPrice = {
+  instrument_id: string;
+  close: number;
+  as_of: string;
+  source: string;
+  entered_at: string | null;
+};
+
+/**
+ * The newest stored close per instrument, with where it came from.
+ *
+ * `latestPrices` deliberately returns only what a trade needs. This is for the
+ * teacher's own page, which has to show whether a number is today's real close
+ * somebody typed in, or a leftover from the generated series.
+ */
+export async function latestStoredPrices(): Promise<Map<string, StoredPrice>> {
+  const { data } = await createAdminClient()
+    .from("sim_prices")
+    .select("instrument_id, close, as_of, source, entered_at")
+    .order("as_of", { ascending: false });
+  const out = new Map<string, StoredPrice>();
+  for (const row of data || []) {
+    if (!out.has(row.instrument_id)) out.set(row.instrument_id, { ...row, close: Number(row.close) } as StoredPrice);
+  }
+  return out;
+}
+
+/** Today where the students are, not where the server is. */
+export function todayInToronto(now = new Date()): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Toronto",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(now);
+}
+
+/** Monday is 1, Sunday is 7, for a plain YYYY-MM-DD with no timezone in it. */
+function isoWeekday(day: string): number {
+  const d = new Date(`${day}T12:00:00Z`).getUTCDay();
+  return d === 0 ? 7 : d;
+}
+
+export function isTradingDay(day: string): boolean {
+  return isoWeekday(day) < 6;
+}
+
+/** The hour in Toronto right now, 0–23. */
+function hourInToronto(now: Date): number {
+  return Number(
+    new Intl.DateTimeFormat("en-CA", { timeZone: "America/Toronto", hour: "2-digit", hour12: false }).format(now),
+  );
+}
+
+/** The Toronto exchange closes at 4pm Eastern. Before that, today has no close. */
+const MARKET_CLOSES_AT = 16;
+
+/**
+ * The most recent day the market has finished trading, in Toronto.
+ *
+ * Two things make this not simply "today". Saturday and Sunday have no close at
+ * all, so a weekend date made Friday's perfectly good prices read as overdue and
+ * offered the teacher a Saturday to file them under. And a weekday before 4pm
+ * has no close *yet* — on Tuesday morning the day to be entering is Monday.
+ * Offering Tuesday there invites an intraday quote to be filed as a closing
+ * price, and trades then use it as one permanently.
+ *
+ * Weekends and the clock only. Statutory holidays are not in here — there is no
+ * exchange calendar to consult without a data feed, which is the thing this
+ * design exists to avoid. The cost is a holiday looking like a day somebody
+ * forgot, which the page states as a date rather than an accusation.
+ */
+export function lastTradingDay(now = new Date()): string {
+  const d = new Date(`${todayInToronto(now)}T12:00:00Z`);
+  if (hourInToronto(now) < MARKET_CLOSES_AT) d.setUTCDate(d.getUTCDate() - 1);
+  while (isoWeekday(d.toISOString().slice(0, 10)) > 5) d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
+export type PriceFreshness = {
+  /** The oldest close in use — what the page must report, because a portfolio is only as current as its stalest holding. */
+  oldest: string | null;
+  newest: string | null;
+  /** An instrument with no price at all. Students cannot trade it. */
+  missing: boolean;
+  /** The instruments are not all priced to the same day. */
+  mixed: boolean;
+  stale: boolean;
+};
+
+/**
+ * How current the prices are, judged across every instrument rather than by the
+ * newest one.
+ *
+ * Entering one instrument's close and leaving the rest made the newest date
+ * today, and a page reading that reported the whole portfolio as valued today
+ * while most of it sat on last week's numbers. The oldest is the honest figure.
+ */
+export function priceFreshness(
+  prices: Map<string, StoredPrice>,
+  instrumentIds: string[],
+  marketDay: string = lastTradingDay(),
+): PriceFreshness {
+  const dates = instrumentIds.map((id) => prices.get(id)?.as_of ?? null);
+  const known = dates.filter((d): d is string => !!d).sort();
+  const oldest = known[0] ?? null;
+  const newest = known[known.length - 1] ?? null;
+  return {
+    oldest,
+    newest,
+    missing: dates.some((d) => d === null),
+    mixed: !!oldest && oldest !== newest,
+    stale: dates.some((d) => d === null) || !oldest || oldest < marketDay,
+  };
 }

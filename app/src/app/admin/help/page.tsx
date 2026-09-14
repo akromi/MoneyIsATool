@@ -14,6 +14,8 @@ export default async function AdminHelpPage() {
         <p className="muted">
           What each control does, who does what, and what to say when somebody writes in.
           For anything to do with servers, domains or keys, see the technical guide in the repository instead.
+          For the Canadian Investment Challenge &mdash; running a class, entering prices, what to tell a school
+          about student data &mdash; see <Link href="/teach/help">Running the Challenge</Link>.
         </p>
         <p><Link href="/admin">← Back to Administration</Link></p>
       </div>

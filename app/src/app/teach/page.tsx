@@ -44,6 +44,10 @@ export default async function TeachPage() {
           They go to <a href={`${siteUrl()}/sim/join`}><b>{siteUrl().replace(/^https?:\/\//, "")}/sim/join</b></a>.
           Each class page has the code and a copy of the instructions.
         </p>
+        <p>
+          <Link className="btn secondary" href="/teach/prices">Enter closing prices</Link>{" "}
+          <Link className="btn secondary" href="/teach/help">Running the Challenge</Link>
+        </p>
       </div>
 
       <section className="card">

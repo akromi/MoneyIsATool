@@ -88,6 +88,9 @@ export async function placeTrade(_prev: SimState, form: FormData): Promise<SimSt
     p_price_as_of: price.as_of,
     p_reason_code: reasonCode,
     p_reason_text: reasonText,
+    // Whether this was a real close or a generated one is part of what the
+    // trade is, and the ledger cannot be corrected later.
+    p_price_source: price.source,
   });
   if (error) {
     const detail = error.message || "";

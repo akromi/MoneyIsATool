@@ -4,10 +4,18 @@ import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { getEntitlements } from "@/lib/entitlements";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { classById } from "@/lib/sim/data";
+import { classById, isTradingDay, lastTradingDay, latestStoredPrices, listInstruments } from "@/lib/sim/data";
+import { money } from "@/lib/sim/engine";
 import { hashPasscode, newJoinCode, newPasscode, newSalt } from "@/lib/sim/session";
 
-export type TeachState = { error?: string; ok?: string };
+export type TeachState = {
+  error?: string;
+  ok?: string;
+  /* What was typed, handed back so a refused save can be re-rendered with it
+     still in the boxes. An error that says "check it and save again" is useless
+     if saving again means typing all five prices out a second time. */
+  entered?: { as_of?: string; prices?: Record<string, string>; allowLargeMove?: boolean; replaceExisting?: boolean };
+};
 
 /**
  * Running a class is part of a school licence, so being signed in is not
@@ -111,4 +119,116 @@ export async function regenerateJoinCode(form: FormData): Promise<void> {
   await ownClass(classId);
   await createAdminClient().from("sim_classes").update({ join_code: newJoinCode() }).eq("id", classId);
   revalidatePath(`/teach/${classId}`);
+}
+
+/**
+ * Records the day's closing prices, typed in by a teacher from a real quote.
+ *
+ * One set of prices serves every class, because the closing price of a share on
+ * a given day is one fact, not a per-class opinion. That also means a number
+ * entered here reaches somebody else's students, so it is guarded three ways: a
+ * move of more than half the last price has to be confirmed, a close another
+ * teacher already entered is never silently replaced, and every row records who
+ * put it there.
+ *
+ * Blank fields are skipped rather than treated as zero — a teacher who follows
+ * three of the five instruments should not have to invent the other two.
+ */
+export async function setPrices(_prev: TeachState, form: FormData): Promise<TeachState> {
+  const user = await requireTeacher();
+  const asOf = String(form.get("as_of") || "").trim();
+  const allowLargeMove = form.get("allow_large_move") === "on";
+  const replaceExisting = form.get("replace_existing") === "on";
+
+  /* Everything typed, captured before anything can be refused. An error that
+     says "check it and tick the box and save again" is useless if saving again
+     means typing all five prices out a second time. */
+  const typed: Record<string, string> = {};
+  for (const [k, v] of form.entries()) {
+    if (k.startsWith("price_")) typed[k.slice("price_".length)] = String(v);
+  }
+  const entered = { as_of: asOf, prices: typed, allowLargeMove, replaceExisting };
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(asOf)) return { error: "Pick the trading day these closes are from.", entered };
+  // Not merely "not in the future": a weekday before 4pm Eastern has no close
+  // yet either, and accepting one files an intraday quote as a closing price —
+  // which trades then use as one, permanently.
+  const latest = lastTradingDay();
+  if (asOf > latest) {
+    return { error: `There is no close for that day yet. The most recent one is ${latest}; the market closes at 4pm Eastern.`, entered };
+  }
+  if (!isTradingDay(asOf)) {
+    return { error: "Markets are shut at the weekend. Pick the Friday, or the trading day these closes are from.", entered };
+  }
+
+  const admin = createAdminClient();
+  const instruments = await listInstruments();
+  const previous = await latestStoredPrices();
+
+  const ids: string[] = [];
+  const closes: number[] = [];
+  const queried: string[] = [];
+
+  for (const instrument of instruments) {
+    const raw = String(form.get(`price_${instrument.id}`) || "").replace(/[$,\s]/g, "");
+    if (raw === "") continue;
+    const close = Number(raw);
+    if (!isFinite(close) || close <= 0) return { error: `${instrument.symbol}: enter a price above zero, or leave it blank.`, entered };
+
+    // A decimal point in the wrong place is the mistake that matters here: the
+    // trades placed against it cannot be taken back off an append-only ledger.
+    const last = previous.get(instrument.id);
+    if (last && !allowLargeMove && Math.abs(close - last.close) / last.close > 0.5) {
+      queried.push(`${instrument.symbol} ${money(last.close)} → ${money(close)}`);
+    }
+
+    ids.push(instrument.id);
+    closes.push(close);
+  }
+
+  if (queried.length) {
+    return {
+      error: `That is a move of more than half: ${queried.join(", ")}. Check the decimal point, then tick the box below and save again if it is right.`,
+      entered,
+    };
+  }
+  if (!ids.length) return { error: "Enter at least one closing price.", entered };
+
+  /* The checking and the writing happen inside one statement, under locks on
+     the rows involved. Doing it here instead left a gap two teachers saving at
+     once could both pass through, after which the later one overwrote the
+     earlier one regardless. All or nothing: a clash on one instrument writes
+     none of them, rather than leaving half a day filled in. */
+  const { data: clashes, error } = await admin.rpc("sim_set_prices", {
+    p_instrument_ids: ids,
+    p_closes: closes,
+    p_as_of: asOf,
+    p_entered_by: user.id,
+    p_replace: replaceExisting,
+  });
+
+  if (error) {
+    return {
+      error: error.message?.includes("while this was saving")
+        ? "Somebody entered a close for that day while this was saving. Nothing was changed — look at the figures again."
+        : "Those prices could not be saved. Try again.",
+      entered,
+    };
+  }
+
+  const clashed = (clashes || []) as string[];
+  if (clashed.length) {
+    const readable = clashed.map((c) => {
+      const [symbol, held] = c.split("|");
+      return `${symbol} is already ${money(Number(held))}`;
+    });
+    return {
+      error: `Somebody has already entered ${asOf}: ${readable.join("; ")}. Check yours against theirs — every class uses these. Tick the replace box below and save again to correct it.`,
+      entered,
+    };
+  }
+
+  revalidatePath("/teach/prices");
+  revalidatePath("/teach");
+  return { ok: `Saved ${ids.length} closing price${ids.length === 1 ? "" : "s"} for ${asOf}. Trades placed now use them.` };
 }

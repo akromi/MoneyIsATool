@@ -318,7 +318,16 @@ details.bgroup summary .bsum{margin-left:auto;font-variant-numeric:tabular-nums;
 
 /* planners — worksheet tables, one column per option or per detail */
 .ptable{margin:2px 0 0}
+/* Every section of a planner declares its own columns, because they ask for
+   different things. What they must not do is start in different places: with a
+   proportional lead column, a section with five fields and one with six resolve
+   it to different widths, and the answers march down the page out of line by
+   fifty pixels. One shared width settles it, fixed wherever there is room for
+   it and proportional below that, where the difference was never visible. */
+.ptable{--lead:minmax(150px,1.5fr)}
+@media (min-width:960px){.ptable{--lead:250px}}
 .phead,.prow{display:grid;gap:8px;align-items:start;padding:6px 0}
+.phead .num{text-align:right}
 .phead{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-faint);font-weight:700;border-bottom:1px solid var(--line);padding-bottom:7px}
 .prow{border-bottom:1px solid var(--line)}
 .prow:last-child{border-bottom:0}
@@ -2208,9 +2217,11 @@ const MIT = (() => {
   }
 
   function planGrid(key, s, si, n) {
-    const tpl = [s.lead ? LEAD_W : "", ...s.cols.map(c => c.w)].filter(Boolean).join(" ");
+    const tpl = [s.lead ? "var(--lead)" : "", ...s.cols.map(c => c.w)].filter(Boolean).join(" ");
     const head = `<div class="phead" style="grid-template-columns:${tpl}"><span>${esc(s.lead)}</span>` +
-      s.cols.map(c => `<span>${esc(c.l)}</span>`).join("") + `</div>`;
+      // A worked-out figure sits at the right of its column, so its heading has
+      // to as well, or the two are at opposite ends of the same column.
+      s.cols.map(c => `<span${c.t === "calc" ? ' class="num"' : ""}>${esc(c.l)}</span>`).join("") + `</div>`;
     const rows = s.rows.map(row =>
       `<div class="prow${row.tot ? " tot" : ""}" style="grid-template-columns:${tpl}">` +
       `<span class="rlabel">${esc(row.l)}</span>` +
