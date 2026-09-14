@@ -1,7 +1,7 @@
 /* Money Is a Tool — offline cache. Pages are fetched fresh and fall back to
    the cache when there is no connection, so the calculators keep working
    offline without ever showing a returning visitor a stale copy of the site. */
-const CACHE = "moneyisatool-v4";
+const CACHE = "moneyisatool-v5";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-maskable.svg"];
 
 /* The book's QR codes point at permanent redirect pages (/budget, /borrow,
