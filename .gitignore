@@ -5,6 +5,7 @@ node_modules/
 # beside the Markdown goes stale the moment the guide is edited.
 TECHNICAL-GUIDE.pdf
 TEACHER-GUIDE.pdf
+ADMIN-GUIDE.pdf
 scripts/guide-pdf/.guide.html
 scripts/guide-pdf/.render-error
 

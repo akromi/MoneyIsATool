@@ -1,14 +1,15 @@
 # Markdown guide → PDF
 
-Two guides live at the top of the repository, and both are printed by this
+Three guides live at the top of the repository, and all are printed by this
 folder. The Markdown is the copy that stays correct.
 
 | Guide | For | Build |
 | --- | --- | --- |
 | `TECHNICAL-GUIDE.md` | Whoever looks after the site: domains, hosting, keys. | `bash scripts/guide-pdf/build.sh` |
 | `TEACHER-GUIDE.md` | A teacher using the calculators, planners and the Challenge in a classroom. | `bash scripts/guide-pdf/build.sh TEACHER-GUIDE.md TEACHER-GUIDE.pdf` |
+| `ADMIN-GUIDE.md` | Whoever holds the Administration page: access, licences, support answers. | `bash scripts/guide-pdf/build.sh ADMIN-GUIDE.md ADMIN-GUIDE.pdf` |
 
-Both PDFs are ignored by git deliberately: one committed alongside the Markdown
+The PDFs are ignored by git deliberately: one committed alongside the Markdown
 goes stale the first time somebody edits the guide and forgets to regenerate it.
 Make one when you need one.
 
