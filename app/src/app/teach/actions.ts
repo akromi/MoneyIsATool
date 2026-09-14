@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { getEntitlements } from "@/lib/entitlements";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { classById, isTradingDay, latestStoredPrices, listInstruments, todayInToronto } from "@/lib/sim/data";
+import { classById, isTradingDay, lastTradingDay, latestStoredPrices, listInstruments } from "@/lib/sim/data";
 import { money } from "@/lib/sim/engine";
 import { hashPasscode, newJoinCode, newPasscode, newSalt } from "@/lib/sim/session";
 
@@ -131,9 +131,16 @@ export async function setPrices(_prev: TeachState, form: FormData): Promise<Teac
   const user = await requireTeacher();
   const asOf = String(form.get("as_of") || "").trim();
   if (!/^\d{4}-\d{2}-\d{2}$/.test(asOf)) return { error: "Pick the trading day these closes are from." };
-  if (asOf > todayInToronto()) return { error: "That date is in the future." };
-  // No close exists for a day the market did not open.
-  if (!isTradingDay(asOf)) return { error: "Markets are shut at the weekend. Pick the Friday, or the trading day these closes are from." };
+  // Not merely "not in the future": a weekday before 4pm Eastern has no close
+  // yet either, and accepting one files an intraday quote as a closing price —
+  // which trades then use as one, permanently.
+  const latest = lastTradingDay();
+  if (asOf > latest) {
+    return { error: `There is no close for that day yet. The most recent one is ${latest}; the market closes at 4pm Eastern.` };
+  }
+  if (!isTradingDay(asOf)) {
+    return { error: "Markets are shut at the weekend. Pick the Friday, or the trading day these closes are from." };
+  }
 
   const allowLargeMove = form.get("allow_large_move") === "on";
   const replaceExisting = form.get("replace_existing") === "on";
@@ -142,34 +149,15 @@ export async function setPrices(_prev: TeachState, form: FormData): Promise<Teac
   const instruments = await listInstruments();
   const previous = await latestStoredPrices();
 
-  // What is already filed under this date, so an existing close is not quietly
-  // overwritten by a second teacher entering the same day.
-  const { data: onFile } = await admin
-    .from("sim_prices")
-    .select("instrument_id, close, source")
-    .eq("as_of", asOf);
-  const existing = new Map((onFile || []).map((r) => [r.instrument_id, { close: Number(r.close), source: r.source }]));
-
-  const rows: { instrument_id: string; as_of: string; close: number; source: string; entered_by: string; entered_at: string }[] = [];
+  const ids: string[] = [];
+  const closes: number[] = [];
   const queried: string[] = [];
-  const clashes: string[] = [];
-  let unchanged = 0;
 
   for (const instrument of instruments) {
     const raw = String(form.get(`price_${instrument.id}`) || "").replace(/[$,\s]/g, "");
     if (raw === "") continue;
     const close = Number(raw);
     if (!isFinite(close) || close <= 0) return { error: `${instrument.symbol}: enter a price above zero, or leave it blank.` };
-
-    const held = existing.get(instrument.id);
-    if (held && held.source === "manual") {
-      // Entering the same number again is agreement, not a correction.
-      if (Math.abs(held.close - close) < 0.00005) { unchanged += 1; continue; }
-      if (!replaceExisting) {
-        clashes.push(`${instrument.symbol} is already ${money(held.close)}, you entered ${money(close)}`);
-        continue;
-      }
-    }
 
     // A decimal point in the wrong place is the mistake that matters here: the
     // trades placed against it cannot be taken back off an append-only ledger.
@@ -178,14 +166,8 @@ export async function setPrices(_prev: TeachState, form: FormData): Promise<Teac
       queried.push(`${instrument.symbol} ${money(last.close)} → ${money(close)}`);
     }
 
-    rows.push({
-      instrument_id: instrument.id,
-      as_of: asOf,
-      close,
-      source: "manual",
-      entered_by: user.id,
-      entered_at: new Date().toISOString(),
-    });
+    ids.push(instrument.id);
+    closes.push(close);
   }
 
   if (queried.length) {
@@ -193,21 +175,39 @@ export async function setPrices(_prev: TeachState, form: FormData): Promise<Teac
       error: `That is a move of more than half: ${queried.join(", ")}. Check the decimal point, then tick the box below and save again if it is right.`,
     };
   }
-  if (clashes.length) {
-    return {
-      error: `Somebody has already entered ${asOf} for ${clashes.join("; ")}. Check yours against theirs — every class uses these. Tick the replace box below and save again to correct it.`,
-    };
-  }
-  if (!rows.length) {
-    return unchanged
-      ? { ok: `Already recorded for ${asOf}. Nothing to change.` }
-      : { error: "Enter at least one closing price." };
+  if (!ids.length) return { error: "Enter at least one closing price." };
+
+  /* The checking and the writing happen inside one statement, under locks on
+     the rows involved. Doing it here instead left a gap two teachers saving at
+     once could both pass through, after which the later one overwrote the
+     earlier one regardless. All or nothing: a clash on one instrument writes
+     none of them, rather than leaving half a day filled in. */
+  const { data: clashes, error } = await admin.rpc("sim_set_prices", {
+    p_instrument_ids: ids,
+    p_closes: closes,
+    p_as_of: asOf,
+    p_entered_by: user.id,
+    p_replace: replaceExisting,
+  });
+
+  if (error) {
+    return { error: error.message?.includes("while this was saving")
+      ? "Somebody entered a close for that day while this was saving. Nothing was changed — look at the figures again."
+      : "Those prices could not be saved. Try again." };
   }
 
-  const { error } = await admin.from("sim_prices").upsert(rows, { onConflict: "instrument_id,as_of" });
-  if (error) return { error: "Those prices could not be saved. Try again." };
+  const clashed = (clashes || []) as string[];
+  if (clashed.length) {
+    const readable = clashed.map((c) => {
+      const [symbol, held] = c.split("|");
+      return `${symbol} is already ${money(Number(held))}`;
+    });
+    return {
+      error: `Somebody has already entered ${asOf}: ${readable.join("; ")}. Check yours against theirs — every class uses these. Tick the replace box below and save again to correct it.`,
+    };
+  }
 
   revalidatePath("/teach/prices");
   revalidatePath("/teach");
-  return { ok: `Saved ${rows.length} closing price${rows.length === 1 ? "" : "s"} for ${asOf}. Trades placed now use them.` };
+  return { ok: `Saved ${ids.length} closing price${ids.length === 1 ? "" : "s"} for ${asOf}. Trades placed now use them.` };
 }

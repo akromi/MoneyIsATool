@@ -83,7 +83,9 @@ export default async function TeachHelpPage() {
         <p>
           This is the only thing that needs doing regularly, and it takes about a minute. After the market closes
           at 4pm Eastern, read the day&apos;s closing price for each instrument from wherever you normally look, and
-          enter them on <Link href="/teach/prices">Closing prices</Link>.
+          enter them on <Link href="/teach/prices">Closing prices</Link>. The next morning is equally fine: the form
+          offers the last day that has actually finished trading, so before 4pm it offers yesterday, and a day with
+          no close yet is refused rather than filled with a mid-afternoon quote.
         </p>
         <ul className="tight">
           <li><b>Miss a day and nothing breaks.</b> Trades keep using the newest price held. Portfolios simply do not move that day, which is honest.</li>

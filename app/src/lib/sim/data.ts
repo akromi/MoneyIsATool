@@ -228,21 +228,34 @@ export function isTradingDay(day: string): boolean {
   return isoWeekday(day) < 6;
 }
 
+/** The hour in Toronto right now, 0–23. */
+function hourInToronto(now: Date): number {
+  return Number(
+    new Intl.DateTimeFormat("en-CA", { timeZone: "America/Toronto", hour: "2-digit", hour12: false }).format(now),
+  );
+}
+
+/** The Toronto exchange closes at 4pm Eastern. Before that, today has no close. */
+const MARKET_CLOSES_AT = 16;
+
 /**
- * The most recent day the market was open, counting back from today in Toronto.
+ * The most recent day the market has finished trading, in Toronto.
  *
- * Saturday and Sunday have no close, so treating the calendar day as the
- * trading day made Friday's perfectly good prices read as stale all weekend,
- * and offered the teacher a Saturday to file them under.
+ * Two things make this not simply "today". Saturday and Sunday have no close at
+ * all, so a weekend date made Friday's perfectly good prices read as overdue and
+ * offered the teacher a Saturday to file them under. And a weekday before 4pm
+ * has no close *yet* — on Tuesday morning the day to be entering is Monday.
+ * Offering Tuesday there invites an intraday quote to be filed as a closing
+ * price, and trades then use it as one permanently.
  *
- * Weekends only. Statutory holidays are not in here — there is no exchange
- * calendar to consult without a data feed, which is the thing this design
- * exists to avoid. The cost of that is a holiday looking like a day somebody
+ * Weekends and the clock only. Statutory holidays are not in here — there is no
+ * exchange calendar to consult without a data feed, which is the thing this
+ * design exists to avoid. The cost is a holiday looking like a day somebody
  * forgot, which the page states as a date rather than an accusation.
  */
 export function lastTradingDay(now = new Date()): string {
-  const day = todayInToronto(now);
-  const d = new Date(`${day}T12:00:00Z`);
+  const d = new Date(`${todayInToronto(now)}T12:00:00Z`);
+  if (hourInToronto(now) < MARKET_CLOSES_AT) d.setUTCDate(d.getUTCDate() - 1);
   while (isoWeekday(d.toISOString().slice(0, 10)) > 5) d.setUTCDate(d.getUTCDate() - 1);
   return d.toISOString().slice(0, 10);
 }
