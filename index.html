@@ -2359,11 +2359,15 @@ const MIT = (() => {
      are already on changes no hash, so the router never runs and the panel
      stays open over the page. Closing here covers that too.
 
+     Delegated on the whole header rather than the strip, because the brand is
+     a link to #/home sitting outside it and reaches the same dead end. The
+     menu button is a button, not a link, so its own handler still toggles.
+
      Focus moves to the button because the link just activated is about to be
      display:none. A browser drops focus to the document when that happens, so
      a keyboard or screen-reader user would lose their place and start the next
      Tab from the top of the page. */
-  tabStrip.addEventListener("click", (e) => {
+  $("header.site").addEventListener("click", (e) => {
     if (!tabStrip.classList.contains("open") || !e.target.closest("a")) return;
     setMenu(false);
     // Not on a window widened past the breakpoint while the panel was open:
