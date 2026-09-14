@@ -22,6 +22,7 @@ export default async function Shell({ children, current }: { children: React.Rea
             <a href={calculatorsUrl()}>Calculators</a>
             {user ? item("/account", "My access", "account") : item("/", "Buy the book", "home")}
             {user ? item("/teachers", "Teacher Resources", "teachers") : item("/school-licence", "Schools", "school")}
+            {user && item("/teach", "Challenge", "teach")}
             {owner && item("/admin", "Admin", "admin")}
             {user ? (
               <form action="/auth/signout" method="post" style={{ display: "inline" }}>

@@ -6,3 +6,6 @@ node_modules/
 TECHNICAL-GUIDE.pdf
 scripts/guide-pdf/.guide.html
 scripts/guide-pdf/.render-error
+
+# Scratch output from the simulation engine unit tests.
+app/.test-build/
