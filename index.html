@@ -2351,8 +2351,17 @@ const MIT = (() => {
      change, so a tap on a link never leaves the panel hanging over the page. */
   const menuBtn = $(".menubtn"), tabStrip = $("nav.tabs");
   function setMenu(open) {
+    /* Closing hides the strip outright. If focus is inside it at that moment —
+       a link just activated, or the panel left open while the browser goes
+       Back — the browser drops focus to the document, and the next Tab starts
+       again from the top of the page. So the repair belongs here, with the
+       thing that causes it, rather than in each of the places that close the
+       panel. Not onto a button that is itself display:none, which is what it
+       becomes on a window widened past the breakpoint. */
+    const stranded = !open && tabStrip.contains(document.activeElement);
     tabStrip.classList.toggle("open", open);
     menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    if (stranded && menuBtn.offsetParent) menuBtn.focus();
   }
   menuBtn.addEventListener("click", () => setMenu(!tabStrip.classList.contains("open")));
   /* Closing on the route change alone is not enough: the link for the page you
@@ -2361,19 +2370,10 @@ const MIT = (() => {
 
      Delegated on the whole header rather than the strip, because the brand is
      a link to #/home sitting outside it and reaches the same dead end. The
-     menu button is a button, not a link, so its own handler still toggles.
-
-     Focus moves to the button because the link just activated is about to be
-     display:none. A browser drops focus to the document when that happens, so
-     a keyboard or screen-reader user would lose their place and start the next
-     Tab from the top of the page. */
+     menu button is a button, not a link, so its own handler still toggles. */
   $("header.site").addEventListener("click", (e) => {
     if (!tabStrip.classList.contains("open") || !e.target.closest("a")) return;
     setMenu(false);
-    // Not on a window widened past the breakpoint while the panel was open:
-    // there the button is itself display:none, and focusing it drops focus to
-    // the document — the very thing this is here to avoid.
-    if (menuBtn.offsetParent) menuBtn.focus();
   });
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && tabStrip.classList.contains("open")) { setMenu(false); menuBtn.focus(); }
