@@ -137,6 +137,13 @@ export function PriceForm({
         <input type="checkbox" name="allow_large_move" style={{ flex: "none", marginTop: 3 }} />
         <span className="faint">Yes, a price really has moved by more than half since the last one held.</span>
       </label>
+      <label className="row" style={{ alignItems: "flex-start", gap: 8, flexWrap: "nowrap" }}>
+        <input type="checkbox" name="replace_existing" style={{ flex: "none", marginTop: 3 }} />
+        <span className="faint">
+          Replace a close another teacher already entered for this day. Every class uses these, so check yours
+          against theirs first.
+        </span>
+      </label>
       <div><button className="btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save the closing prices"}</button></div>
     </form>
   );

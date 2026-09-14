@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
 import { getEntitlements } from "@/lib/entitlements";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { classById, latestStoredPrices, listInstruments, tradingDayInToronto } from "@/lib/sim/data";
+import { classById, isTradingDay, latestStoredPrices, listInstruments, todayInToronto } from "@/lib/sim/data";
 import { money } from "@/lib/sim/engine";
 import { hashPasscode, newJoinCode, newPasscode, newSalt } from "@/lib/sim/session";
 
@@ -117,11 +117,12 @@ export async function regenerateJoinCode(form: FormData): Promise<void> {
 /**
  * Records the day's closing prices, typed in by a teacher from a real quote.
  *
- * One set of prices serves every class, because the closing price of a share
- * on a given day is one fact, not a per-class opinion. That also means a
- * mistyped number reaches somebody else's students, so two things guard it: a
- * move of more than half the last price has to be confirmed, and every row
- * records who entered it.
+ * One set of prices serves every class, because the closing price of a share on
+ * a given day is one fact, not a per-class opinion. That also means a number
+ * entered here reaches somebody else's students, so it is guarded three ways: a
+ * move of more than half the last price has to be confirmed, a close another
+ * teacher already entered is never silently replaced, and every row records who
+ * put it there.
  *
  * Blank fields are skipped rather than treated as zero — a teacher who follows
  * three of the five instruments should not have to invent the other two.
@@ -130,21 +131,45 @@ export async function setPrices(_prev: TeachState, form: FormData): Promise<Teac
   const user = await requireTeacher();
   const asOf = String(form.get("as_of") || "").trim();
   if (!/^\d{4}-\d{2}-\d{2}$/.test(asOf)) return { error: "Pick the trading day these closes are from." };
-  if (asOf > tradingDayInToronto()) return { error: "That date is in the future." };
+  if (asOf > todayInToronto()) return { error: "That date is in the future." };
+  // No close exists for a day the market did not open.
+  if (!isTradingDay(asOf)) return { error: "Markets are shut at the weekend. Pick the Friday, or the trading day these closes are from." };
+
   const allowLargeMove = form.get("allow_large_move") === "on";
+  const replaceExisting = form.get("replace_existing") === "on";
 
   const admin = createAdminClient();
   const instruments = await listInstruments();
   const previous = await latestStoredPrices();
 
+  // What is already filed under this date, so an existing close is not quietly
+  // overwritten by a second teacher entering the same day.
+  const { data: onFile } = await admin
+    .from("sim_prices")
+    .select("instrument_id, close, source")
+    .eq("as_of", asOf);
+  const existing = new Map((onFile || []).map((r) => [r.instrument_id, { close: Number(r.close), source: r.source }]));
+
   const rows: { instrument_id: string; as_of: string; close: number; source: string; entered_by: string; entered_at: string }[] = [];
   const queried: string[] = [];
+  const clashes: string[] = [];
+  let unchanged = 0;
 
   for (const instrument of instruments) {
     const raw = String(form.get(`price_${instrument.id}`) || "").replace(/[$,\s]/g, "");
     if (raw === "") continue;
     const close = Number(raw);
     if (!isFinite(close) || close <= 0) return { error: `${instrument.symbol}: enter a price above zero, or leave it blank.` };
+
+    const held = existing.get(instrument.id);
+    if (held && held.source === "manual") {
+      // Entering the same number again is agreement, not a correction.
+      if (Math.abs(held.close - close) < 0.00005) { unchanged += 1; continue; }
+      if (!replaceExisting) {
+        clashes.push(`${instrument.symbol} is already ${money(held.close)}, you entered ${money(close)}`);
+        continue;
+      }
+    }
 
     // A decimal point in the wrong place is the mistake that matters here: the
     // trades placed against it cannot be taken back off an append-only ledger.
@@ -163,11 +188,20 @@ export async function setPrices(_prev: TeachState, form: FormData): Promise<Teac
     });
   }
 
-  if (!rows.length) return { error: "Enter at least one closing price." };
   if (queried.length) {
     return {
       error: `That is a move of more than half: ${queried.join(", ")}. Check the decimal point, then tick the box below and save again if it is right.`,
     };
+  }
+  if (clashes.length) {
+    return {
+      error: `Somebody has already entered ${asOf} for ${clashes.join("; ")}. Check yours against theirs — every class uses these. Tick the replace box below and save again to correct it.`,
+    };
+  }
+  if (!rows.length) {
+    return unchanged
+      ? { ok: `Already recorded for ${asOf}. Nothing to change.` }
+      : { error: "Enter at least one closing price." };
   }
 
   const { error } = await admin.from("sim_prices").upsert(rows, { onConflict: "instrument_id,as_of" });

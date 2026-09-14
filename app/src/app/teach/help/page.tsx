@@ -94,7 +94,18 @@ export default async function TeachHelpPage() {
             purpose, because a record students are marked on should not be quietly editable. The repair is an
             offsetting trade, in the open.
           </li>
-          <li><b>Prices are shared by every class.</b> The close of a share on a given day is one fact, not a per-class opinion — so a number you enter is the number another teacher&apos;s class trades against too.</li>
+          <li>
+            <b>Prices are shared by every class.</b> The close of a share on a given day is one fact, not a
+            per-class opinion — so a number you enter is the number another teacher&apos;s class trades
+            against too. If somebody has already entered that day, yours is not accepted silently: you are shown
+            both figures and have to tick a box to replace theirs.
+          </li>
+          <li>
+            <b>Weekends are not trading days.</b> The form offers you the last day the market was open, so on a
+            Sunday it offers Friday and Friday&apos;s prices do not read as overdue. Statutory holidays are not
+            known to it — that would need the very data feed this design avoids — so a holiday looks
+            like a day nobody filled in. Leave it; nothing breaks.
+          </li>
         </ul>
       </section>
 

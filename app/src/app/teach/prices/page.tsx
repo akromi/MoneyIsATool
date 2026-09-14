@@ -2,7 +2,7 @@ import Link from "next/link";
 import Shell from "@/components/Shell";
 import { requireTeacher } from "../actions";
 import { PriceForm } from "../Forms";
-import { latestStoredPrices, listInstruments, tradingDayInToronto } from "@/lib/sim/data";
+import { lastTradingDay, latestStoredPrices, listInstruments, priceFreshness } from "@/lib/sim/data";
 
 export const metadata = { title: "Closing prices — Canadian Investment Challenge" };
 
@@ -19,7 +19,9 @@ export const metadata = { title: "Closing prices — Canadian Investment Challen
 export default async function PricesPage() {
   await requireTeacher();
   const [instruments, previous] = await Promise.all([listInstruments(), latestStoredPrices()]);
-  const today = tradingDayInToronto();
+  // The last day a close exists for, not the calendar day: on a Sunday the
+  // figures a teacher has to hand are Friday's.
+  const today = lastTradingDay();
 
   const stored = Object.fromEntries(
     instruments.map((i) => {
@@ -28,9 +30,8 @@ export default async function PricesPage() {
     }),
   );
 
-  const newest = [...previous.values()].map((p) => p.as_of).sort().pop();
-  const stale = !newest || newest < today;
-  const anyGenerated = [...previous.values()].some((p) => p.source !== "manual");
+  const fresh = priceFreshness(previous, instruments.map((i) => i.id), today);
+  const anyGenerated = instruments.some((i) => (previous.get(i.id)?.source ?? "seeded") !== "manual");
 
   return (
     <Shell current="teach">
@@ -44,11 +45,20 @@ export default async function PricesPage() {
         <p><Link href="/teach">← All classes</Link></p>
       </div>
 
-      {stale && (
+      {fresh.stale && (
         <div className="notice err" style={{ marginBottom: 16 }}>
-          {newest
-            ? <>The newest prices held are from <b>{newest}</b>. Until today&apos;s are entered, trades will use that day&apos;s closes.</>
-            : <>No prices are held yet. Students cannot trade until there is at least one close per instrument.</>}
+          {!fresh.oldest ? (
+            <>No prices are held yet. Students cannot trade until there is a close for each instrument.</>
+          ) : fresh.missing ? (
+            <>At least one instrument has no price at all, so it cannot be traded. The rest are priced to{" "}
+              <b>{fresh.mixed ? `${fresh.oldest} — ${fresh.newest}` : fresh.oldest}</b>.</>
+          ) : fresh.mixed ? (
+            <>These are not all priced to the same day: the oldest is <b>{fresh.oldest}</b>, the newest{" "}
+              <b>{fresh.newest}</b>. Trades use whatever is newest for each instrument.</>
+          ) : (
+            <>The newest prices held are from <b>{fresh.oldest}</b>. Until {today}&apos;s are entered, trades will
+              use that day&apos;s closes.</>
+          )}
         </div>
       )}
 

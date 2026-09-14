@@ -38,15 +38,23 @@ export async function listInstruments(): Promise<Instrument[]> {
   return (data || []) as Instrument[];
 }
 
-/** The most recent close per instrument — the price a trade placed now will use. */
-export async function latestPrices(): Promise<Map<string, { close: number; as_of: string }>> {
+/**
+ * The most recent close per instrument — the price a trade placed now will use.
+ *
+ * The source travels with it, because the trade has to record whether the
+ * number it paid was a real close somebody typed in or one of the generated
+ * ones, and sim_trades cannot be corrected afterwards.
+ */
+export async function latestPrices(): Promise<Map<string, { close: number; as_of: string; source: string }>> {
   const { data } = await createAdminClient()
     .from("sim_prices")
-    .select("instrument_id, close, as_of")
+    .select("instrument_id, close, as_of, source")
     .order("as_of", { ascending: false });
-  const out = new Map<string, { close: number; as_of: string }>();
+  const out = new Map<string, { close: number; as_of: string; source: string }>();
   for (const row of data || []) {
-    if (!out.has(row.instrument_id)) out.set(row.instrument_id, { close: Number(row.close), as_of: row.as_of });
+    if (!out.has(row.instrument_id)) {
+      out.set(row.instrument_id, { close: Number(row.close), as_of: row.as_of, source: row.source || "seeded" });
+    }
   }
   return out;
 }
@@ -201,11 +209,77 @@ export async function latestStoredPrices(): Promise<Map<string, StoredPrice>> {
 }
 
 /** Today where the students are, not where the server is. */
-export function tradingDayInToronto(now = new Date()): string {
+export function todayInToronto(now = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/Toronto",
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
   }).format(now);
+}
+
+/** Monday is 1, Sunday is 7, for a plain YYYY-MM-DD with no timezone in it. */
+function isoWeekday(day: string): number {
+  const d = new Date(`${day}T12:00:00Z`).getUTCDay();
+  return d === 0 ? 7 : d;
+}
+
+export function isTradingDay(day: string): boolean {
+  return isoWeekday(day) < 6;
+}
+
+/**
+ * The most recent day the market was open, counting back from today in Toronto.
+ *
+ * Saturday and Sunday have no close, so treating the calendar day as the
+ * trading day made Friday's perfectly good prices read as stale all weekend,
+ * and offered the teacher a Saturday to file them under.
+ *
+ * Weekends only. Statutory holidays are not in here — there is no exchange
+ * calendar to consult without a data feed, which is the thing this design
+ * exists to avoid. The cost of that is a holiday looking like a day somebody
+ * forgot, which the page states as a date rather than an accusation.
+ */
+export function lastTradingDay(now = new Date()): string {
+  const day = todayInToronto(now);
+  const d = new Date(`${day}T12:00:00Z`);
+  while (isoWeekday(d.toISOString().slice(0, 10)) > 5) d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
+export type PriceFreshness = {
+  /** The oldest close in use — what the page must report, because a portfolio is only as current as its stalest holding. */
+  oldest: string | null;
+  newest: string | null;
+  /** An instrument with no price at all. Students cannot trade it. */
+  missing: boolean;
+  /** The instruments are not all priced to the same day. */
+  mixed: boolean;
+  stale: boolean;
+};
+
+/**
+ * How current the prices are, judged across every instrument rather than by the
+ * newest one.
+ *
+ * Entering one instrument's close and leaving the rest made the newest date
+ * today, and a page reading that reported the whole portfolio as valued today
+ * while most of it sat on last week's numbers. The oldest is the honest figure.
+ */
+export function priceFreshness(
+  prices: Map<string, StoredPrice>,
+  instrumentIds: string[],
+  marketDay: string = lastTradingDay(),
+): PriceFreshness {
+  const dates = instrumentIds.map((id) => prices.get(id)?.as_of ?? null);
+  const known = dates.filter((d): d is string => !!d).sort();
+  const oldest = known[0] ?? null;
+  const newest = known[known.length - 1] ?? null;
+  return {
+    oldest,
+    newest,
+    missing: dates.some((d) => d === null),
+    mixed: !!oldest && oldest !== newest,
+    stale: dates.some((d) => d === null) || !oldest || oldest < marketDay,
+  };
 }
