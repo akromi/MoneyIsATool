@@ -92,14 +92,18 @@ export function PriceForm({
   today: string;
 }) {
   const [state, action, pending] = useActionState<TeachState, FormData>(setPrices, {});
+  /* A refused save hands back what was typed. Keying the form on it remounts
+     these uncontrolled inputs with the figures still in them, so "tick the box
+     and save again" does not mean entering the whole day a second time. */
+  const kept = state.entered;
   return (
-    <form action={action} className="stack">
+    <form action={action} className="stack" key={kept ? JSON.stringify(kept) : "fresh"}>
       {state.error && <div className="notice err">{state.error}</div>}
       {state.ok && <div className="notice ok">{state.ok}</div>}
       <label style={{ maxWidth: 220 }}>
         Trading day
         <span className="hint">The day these closes are from, not the day you are typing.</span>
-        <input type="date" name="as_of" defaultValue={today} max={today} required />
+        <input type="date" name="as_of" defaultValue={kept?.as_of || today} max={today} required />
       </label>
       <div className="tablewrap">
         <table>
@@ -121,6 +125,7 @@ export function PriceForm({
                       inputMode="decimal"
                       placeholder="leave blank to skip"
                       aria-label={`Closing price for ${i.symbol}`}
+                      defaultValue={kept?.prices?.[i.id] ?? ""}
                       style={{ maxWidth: 160 }}
                     />
                   </td>
@@ -134,11 +139,11 @@ export function PriceForm({
           box stranded on a line of its own, above text it no longer looks
           attached to. */}
       <label className="row" style={{ alignItems: "flex-start", gap: 8, flexWrap: "nowrap" }}>
-        <input type="checkbox" name="allow_large_move" style={{ flex: "none", marginTop: 3 }} />
+        <input type="checkbox" name="allow_large_move" defaultChecked={kept?.allowLargeMove} style={{ flex: "none", marginTop: 3 }} />
         <span className="faint">Yes, a price really has moved by more than half since the last one held.</span>
       </label>
       <label className="row" style={{ alignItems: "flex-start", gap: 8, flexWrap: "nowrap" }}>
-        <input type="checkbox" name="replace_existing" style={{ flex: "none", marginTop: 3 }} />
+        <input type="checkbox" name="replace_existing" defaultChecked={kept?.replaceExisting} style={{ flex: "none", marginTop: 3 }} />
         <span className="faint">
           Replace a close another teacher already entered for this day. Every class uses these, so check yours
           against theirs first.

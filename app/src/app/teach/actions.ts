@@ -8,7 +8,14 @@ import { classById, isTradingDay, lastTradingDay, latestStoredPrices, listInstru
 import { money } from "@/lib/sim/engine";
 import { hashPasscode, newJoinCode, newPasscode, newSalt } from "@/lib/sim/session";
 
-export type TeachState = { error?: string; ok?: string };
+export type TeachState = {
+  error?: string;
+  ok?: string;
+  /* What was typed, handed back so a refused save can be re-rendered with it
+     still in the boxes. An error that says "check it and save again" is useless
+     if saving again means typing all five prices out a second time. */
+  entered?: { as_of?: string; prices?: Record<string, string>; allowLargeMove?: boolean; replaceExisting?: boolean };
+};
 
 /**
  * Running a class is part of a school licence, so being signed in is not
@@ -130,20 +137,29 @@ export async function regenerateJoinCode(form: FormData): Promise<void> {
 export async function setPrices(_prev: TeachState, form: FormData): Promise<TeachState> {
   const user = await requireTeacher();
   const asOf = String(form.get("as_of") || "").trim();
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(asOf)) return { error: "Pick the trading day these closes are from." };
+  const allowLargeMove = form.get("allow_large_move") === "on";
+  const replaceExisting = form.get("replace_existing") === "on";
+
+  /* Everything typed, captured before anything can be refused. An error that
+     says "check it and tick the box and save again" is useless if saving again
+     means typing all five prices out a second time. */
+  const typed: Record<string, string> = {};
+  for (const [k, v] of form.entries()) {
+    if (k.startsWith("price_")) typed[k.slice("price_".length)] = String(v);
+  }
+  const entered = { as_of: asOf, prices: typed, allowLargeMove, replaceExisting };
+
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(asOf)) return { error: "Pick the trading day these closes are from.", entered };
   // Not merely "not in the future": a weekday before 4pm Eastern has no close
   // yet either, and accepting one files an intraday quote as a closing price —
   // which trades then use as one, permanently.
   const latest = lastTradingDay();
   if (asOf > latest) {
-    return { error: `There is no close for that day yet. The most recent one is ${latest}; the market closes at 4pm Eastern.` };
+    return { error: `There is no close for that day yet. The most recent one is ${latest}; the market closes at 4pm Eastern.`, entered };
   }
   if (!isTradingDay(asOf)) {
-    return { error: "Markets are shut at the weekend. Pick the Friday, or the trading day these closes are from." };
+    return { error: "Markets are shut at the weekend. Pick the Friday, or the trading day these closes are from.", entered };
   }
-
-  const allowLargeMove = form.get("allow_large_move") === "on";
-  const replaceExisting = form.get("replace_existing") === "on";
 
   const admin = createAdminClient();
   const instruments = await listInstruments();
@@ -157,7 +173,7 @@ export async function setPrices(_prev: TeachState, form: FormData): Promise<Teac
     const raw = String(form.get(`price_${instrument.id}`) || "").replace(/[$,\s]/g, "");
     if (raw === "") continue;
     const close = Number(raw);
-    if (!isFinite(close) || close <= 0) return { error: `${instrument.symbol}: enter a price above zero, or leave it blank.` };
+    if (!isFinite(close) || close <= 0) return { error: `${instrument.symbol}: enter a price above zero, or leave it blank.`, entered };
 
     // A decimal point in the wrong place is the mistake that matters here: the
     // trades placed against it cannot be taken back off an append-only ledger.
@@ -173,9 +189,10 @@ export async function setPrices(_prev: TeachState, form: FormData): Promise<Teac
   if (queried.length) {
     return {
       error: `That is a move of more than half: ${queried.join(", ")}. Check the decimal point, then tick the box below and save again if it is right.`,
+      entered,
     };
   }
-  if (!ids.length) return { error: "Enter at least one closing price." };
+  if (!ids.length) return { error: "Enter at least one closing price.", entered };
 
   /* The checking and the writing happen inside one statement, under locks on
      the rows involved. Doing it here instead left a gap two teachers saving at
@@ -191,9 +208,12 @@ export async function setPrices(_prev: TeachState, form: FormData): Promise<Teac
   });
 
   if (error) {
-    return { error: error.message?.includes("while this was saving")
-      ? "Somebody entered a close for that day while this was saving. Nothing was changed — look at the figures again."
-      : "Those prices could not be saved. Try again." };
+    return {
+      error: error.message?.includes("while this was saving")
+        ? "Somebody entered a close for that day while this was saving. Nothing was changed — look at the figures again."
+        : "Those prices could not be saved. Try again.",
+      entered,
+    };
   }
 
   const clashed = (clashes || []) as string[];
@@ -204,6 +224,7 @@ export async function setPrices(_prev: TeachState, form: FormData): Promise<Teac
     });
     return {
       error: `Somebody has already entered ${asOf}: ${readable.join("; ")}. Check yours against theirs — every class uses these. Tick the replace box below and save again to correct it.`,
+      entered,
     };
   }
 

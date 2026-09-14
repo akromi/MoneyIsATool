@@ -8,6 +8,10 @@
 --
 -- All or nothing. A teacher entering five closes and clashing on one gets none
 -- of them written, rather than a half-filled day they then have to reason about.
+--
+-- An instrument whose close is already exactly what is being entered is left
+-- alone rather than rewritten: two teachers doing the same job the same evening
+-- agree with each other, and the second one should not take the credit for it.
 
 create or replace function public.sim_set_prices(
   p_instrument_ids uuid[],
@@ -23,6 +27,8 @@ set search_path = public
 as $$
 declare
   v_conflicts text[] := '{}';
+  v_write_ids uuid[] := '{}';
+  v_write_closes numeric[] := '{}';
   v_symbol text;
   v_close numeric;
   v_source text;
@@ -42,11 +48,20 @@ begin
     where p.instrument_id = p_instrument_ids[i] and p.as_of = p_as_of
     for update;
 
-    if found and v_source = 'manual' and not p_replace
-       and abs(v_close - p_closes[i]) >= 0.00005 then
+    if found and v_source = 'manual' and abs(v_close - p_closes[i]) < 0.00005 then
+      -- The same number entered again is agreement, not a correction. Writing it
+      -- would replace who entered the close and when, for no change at all.
+      continue;
+    end if;
+
+    if found and v_source = 'manual' and not p_replace then
       select s.symbol into v_symbol from public.sim_instruments s where s.id = p_instrument_ids[i];
       v_conflicts := v_conflicts || (coalesce(v_symbol, '?') || '|' || v_close::text);
+      continue;
     end if;
+
+    v_write_ids := v_write_ids || p_instrument_ids[i];
+    v_write_closes := v_write_closes || p_closes[i];
   end loop;
 
   if array_length(v_conflicts, 1) > 0 then
@@ -56,9 +71,9 @@ begin
   -- Pass two: write. The same condition rides on the upsert, so a row that
   -- appeared between the two passes cannot be quietly replaced either — it
   -- fails here instead, and the exception rolls the whole entry back.
-  for i in 1 .. coalesce(array_length(p_instrument_ids, 1), 0) loop
+  for i in 1 .. coalesce(array_length(v_write_ids, 1), 0) loop
     insert into public.sim_prices as p (instrument_id, as_of, close, source, entered_by, entered_at)
-    values (p_instrument_ids[i], p_as_of, p_closes[i], 'manual', p_entered_by, now())
+    values (v_write_ids[i], p_as_of, v_write_closes[i], 'manual', p_entered_by, now())
     on conflict (instrument_id, as_of) do update
       set close = excluded.close,
           source = 'manual',
@@ -66,7 +81,6 @@ begin
           entered_at = excluded.entered_at
       where p.source <> 'manual'
          or p_replace
-         or abs(p.close - excluded.close) < 0.00005
     returning 1 into v_hit;
 
     if v_hit is null then
