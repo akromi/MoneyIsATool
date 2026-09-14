@@ -82,17 +82,36 @@ header.site{
 nav.tabs{display:flex;gap:2px;margin-left:auto;overflow-x:auto;max-width:100%;scrollbar-width:none}
 nav.tabs::-webkit-scrollbar{display:none}
 nav.tabs a{
-  padding:10px 13px 12px;color:var(--ink-soft);font-size:14px;font-weight:600;white-space:nowrap;
+  padding:10px 11px 12px;color:var(--ink-soft);font-size:14px;font-weight:600;white-space:nowrap;
   border-bottom:3px solid transparent;border-radius:0;
 }
 nav.tabs a:hover{color:var(--ink);text-decoration:none}
 nav.tabs a[aria-current="page"]{color:var(--brand);border-bottom-color:var(--brand)}
-/* On a phone the tabs no longer fit across. Scrolling them sideways hid
-   Income & Tax, About and The Book with no scrollbar to hint at them, so on
-   narrow screens they wrap onto as many rows as they need. */
+/* Below this the tabs no longer fit across. Scrolling them sideways hid the
+   last few with no scrollbar to hint at them, so they wrap instead — but
+   wrapped they need six rows, and this header is sticky, so left open they
+   would hold a third of a phone screen for the whole visit. So they collapse
+   behind one button, and open to the same grouped list. The breakpoint sits
+   wider than the one the type and spacing change at because it is the width
+   the strip stops fitting, labels included. */
+.menubtn{display:none}
+@media (max-width:1060px){
+  .menubtn{
+    display:inline-flex;align-items:center;gap:9px;margin-left:auto;
+    padding:7px 13px;border:1px solid var(--rule);border-radius:9px;background:var(--surface);
+    color:var(--ink);font:inherit;font-size:13.5px;font-weight:650;cursor:pointer;
+  }
+  .menubtn .mbars{
+    width:16px;height:12px;flex:none;background:
+      linear-gradient(currentColor,currentColor) 0 0/100% 2px no-repeat,
+      linear-gradient(currentColor,currentColor) 0 5px/100% 2px no-repeat,
+      linear-gradient(currentColor,currentColor) 0 10px/100% 2px no-repeat;
+  }
+  nav.tabs{display:none;margin-left:0;width:100%;flex-wrap:wrap;overflow-x:visible;gap:0 2px}
+  nav.tabs.open{display:flex;padding-bottom:6px}
+}
 @media (max-width:760px){
   .site-inner{padding:10px 16px 0;gap:2px 0}
-  nav.tabs{margin-left:0;width:100%;flex-wrap:wrap;overflow-x:visible;gap:0 2px}
   nav.tabs a{padding:8px 11px 10px;font-size:13.5px}
   .brand .bname{font-size:21px;white-space:normal}
 }
@@ -231,9 +250,22 @@ table.data th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color
 .about li{margin:0 0 6px}
 .about blockquote{margin:16px 0;padding:2px 0 2px 16px;border-left:3px solid var(--brass);font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;font-size:17.5px;line-height:1.5;color:var(--ink)}
 nav.tabs a.ext{color:var(--brass)}
-/* Divides the calculators from the planners without adding another row. */
+/* Names the two halves of the strip rather than hiding them behind a menu:
+   eight destinations is a small enough set that every one stays one tap away,
+   and a dropdown would cost a tap to show what is already on screen. */
+.tabgroup{
+  align-self:center;flex:none;margin:0 6px 0 3px;padding-left:9px;border-left:1px solid var(--line);
+  font-size:10px;letter-spacing:.13em;text-transform:uppercase;font-weight:700;color:var(--ink-faint);
+}
+/* Separates About and The Book, which need no label of their own. */
 .tabsep{align-self:center;width:1px;height:15px;background:var(--line);margin:0 7px;flex:none}
-@media (max-width:760px){.tabsep{display:none}}
+/* Once the strip wraps, a rule read left to right no longer divides anything.
+   Each label takes a whole row instead, so the group heads the links under it
+   and About starts a row of its own. */
+@media (max-width:1060px){
+  .tabgroup{flex-basis:100%;margin:9px 0 0;padding:0 11px;border-left:0}
+  .tabsep{width:100%;height:0;margin:9px 0 0;background:none;flex-basis:100%}
+}
 
 /* stat tiles */
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:18px 0 0}
@@ -405,16 +437,23 @@ footer.site{border-top:1px solid var(--line);background:var(--surface2)}
         <span class="bsub">Companion Calculators</span>
       </span>
     </a>
-    <nav class="tabs" aria-label="Calculators">
+    <button class="menubtn" type="button" aria-expanded="false" aria-controls="sections">
+      <span class="mbars" aria-hidden="true"></span>Menu
+    </button>
+    <nav class="tabs" id="sections" aria-label="Sections">
       <a href="#/home" data-route="home">Home</a>
+      <span class="tabgroup">Calculators</span>
       <a href="#/budget" data-route="budget">Budget</a>
       <a href="#/borrow" data-route="borrow">Borrowing</a>
-      <a href="#/savings" data-route="savings">Savings &amp; Goals</a>
+      <a href="#/savings" data-route="savings" aria-label="Savings and goals calculator">Savings</a>
       <a href="#/tax" data-route="tax">Income &amp; Tax</a>
-      <span class="tabsep" aria-hidden="true"></span>
-      <a href="#/income" data-route="income">Tax Planner</a>
-      <a href="#/housing" data-route="housing">Housing</a>
-      <a href="#/protect" data-route="protect">Protection</a>
+      <span class="tabgroup">Planners</span>
+      <!-- Short labels because the group above says what they are. The full
+           name goes to a screen reader, which hears the links in a row without
+           the visual grouping to lean on. -->
+      <a href="#/income" data-route="income" aria-label="Income and tax planner">Tax</a>
+      <a href="#/housing" data-route="housing" aria-label="Home decision planner">Housing</a>
+      <a href="#/protect" data-route="protect" aria-label="Household protection planner">Protection</a>
       <span class="tabsep" aria-hidden="true"></span>
       <a href="#/about" data-route="about">About</a>
       <a href="https://app.moneyisatool.ca/" class="ext">The Book</a>
@@ -436,6 +475,8 @@ footer.site{border-top:1px solid var(--line);background:var(--surface2)}
     <p>These are the companion calculators to the guide <em>Money Is a Tool</em>. They will not tell you what to do. They exist to help you see your options clearly — the payment, the cost, the timeline, the tradeoff — so that you can make each decision yourself, with confidence.</p>
   </div>
 
+  <h2 class="grouphead">Calculators</h2>
+  <p class="groupsub">Work out the number first — the payment, the cost, the timeline, the tradeoff — so the decision rests on something you can see.</p>
   <div class="toolgrid">
     <a class="toolcard" href="#/budget">
       <span class="tc-kicker">Decision Tool</span>
@@ -2306,12 +2347,25 @@ const MIT = (() => {
   function saveReport() { beforeReport(); window.print(); }
   window.addEventListener("beforeprint", beforeReport);
   window.addEventListener("afterprint", afterReport);
+  /* Opening is the only state this holds. The router closes it on every route
+     change, so a tap on a link never leaves the panel hanging over the page. */
+  const menuBtn = $(".menubtn"), tabStrip = $("nav.tabs");
+  function setMenu(open) {
+    tabStrip.classList.toggle("open", open);
+    menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  menuBtn.addEventListener("click", () => setMenu(!tabStrip.classList.contains("open")));
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && tabStrip.classList.contains("open")) { setMenu(false); menuBtn.focus(); }
+  });
+
   function route() {
     let r = (location.hash || "#/home").replace(/^#\/?/, "").split("?")[0];
     if (!ROUTES.includes(r)) r = "home";
     ROUTES.forEach(x => { const p = $("#page-" + x); if (p) p.classList.toggle("active", x === r); });
     $$("nav.tabs a").forEach(a => a.dataset.route === r ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
     document.title = TITLES[r];
+    setMenu(false);
     fillPrintHead();
     recalcActive();
     window.scrollTo({ top: 0 });
