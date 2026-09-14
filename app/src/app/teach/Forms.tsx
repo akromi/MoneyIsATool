@@ -1,7 +1,31 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { addStudent, createClass, resetPasscode, type TeachState } from "./actions";
+
+/** Copies the joining instructions, for pasting into a class post or an email. */
+export function CopyButton({ text, label = "Copy the instructions" }: { text: string; label?: string }) {
+  const [said, setSaid] = useState("");
+  return (
+    <button
+      className="btn secondary small"
+      type="button"
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(text);
+          setSaid("Copied");
+        } catch {
+          // Clipboard access can be refused outright. Say so rather than
+          // appearing to have worked: the text is on the page to be selected.
+          setSaid("Select the text above and copy it");
+        }
+        setTimeout(() => setSaid(""), 4000);
+      }}
+    >
+      {said || label}
+    </button>
+  );
+}
 
 export function NewClassForm() {
   const [state, action, pending] = useActionState<TeachState, FormData>(createClass, {});

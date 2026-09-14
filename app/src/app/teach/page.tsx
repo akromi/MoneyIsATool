@@ -3,6 +3,7 @@ import Shell from "@/components/Shell";
 import { requireUser } from "@/lib/auth";
 import { getEntitlements } from "@/lib/entitlements";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { siteUrl } from "@/lib/env";
 import { NewClassForm } from "./Forms";
 
 export const metadata = { title: "My classes — Canadian Investment Challenge" };
@@ -38,6 +39,10 @@ export default async function TeachPage() {
         <p className="muted">
           A simulation with virtual money. Students join with a class code and a passcode you hand out —
           they are never asked for an email address.
+        </p>
+        <p className="muted">
+          They go to <a href={`${siteUrl()}/sim/join`}><b>{siteUrl().replace(/^https?:\/\//, "")}/sim/join</b></a>.
+          Each class page has the code and a copy of the instructions.
         </p>
       </div>
 
