@@ -41,13 +41,16 @@ function isWeekend(d: Date): boolean {
 }
 
 export async function GET(request: Request) {
-  // Vercel Cron signs its calls. Anything else gets nothing: this writes rows.
+  // This route writes rows every class trades against, with the service role,
+  // and it sits outside the beta gate so the cron can reach it. So it fails
+  // closed: no secret configured means no writing, rather than no checking.
+  // The Stripe webhook, the only other route through that gap, does the same.
   const secret = process.env.CRON_SECRET;
-  if (secret) {
-    const auth = request.headers.get("authorization");
-    if (auth !== `Bearer ${secret}`) {
-      return NextResponse.json({ error: "not authorised" }, { status: 401 });
-    }
+  if (!secret) {
+    return NextResponse.json({ error: "CRON_SECRET is not configured" }, { status: 503 });
+  }
+  if (request.headers.get("authorization") !== `Bearer ${secret}`) {
+    return NextResponse.json({ error: "not authorised" }, { status: 401 });
   }
 
   const admin = createAdminClient();
