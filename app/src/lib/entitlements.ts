@@ -1,6 +1,6 @@
 import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { SessionUser } from "@/lib/auth";
+import { isOwner, type SessionUser } from "@/lib/auth";
 
 export type Licence = {
   id: string;
@@ -75,9 +75,17 @@ export async function getEntitlements(user: SessionUser): Promise<Entitlements> 
     .filter((m) => !!m.licence);
   const activeSchool = memberships.some((m) => licenceIsActive(m.licence));
 
+  /* Whoever runs the site sees what they are selling. Without this the header
+     offers them Teacher Resources and Challenge and both end on "request a
+     school licence" — from themselves. Demonstrating the Challenge to a school,
+     or checking a teacher file actually downloads, should not require issuing
+     yourself a licence and consuming a seat on it. Scoped to OWNER_EMAILS, the
+     same list that already reveals /admin. */
+  const owner = isOwner(user);
+
   return {
-    book: purchases.length > 0 || activeSchool,
-    teacher: activeSchool,
+    book: owner || purchases.length > 0 || activeSchool,
+    teacher: owner || activeSchool,
     purchases: purchases.map((p) => ({ id: p.id, created_at: p.created_at, product: p.product })),
     memberships,
   };

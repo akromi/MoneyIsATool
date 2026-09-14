@@ -2,11 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Shell from "@/components/Shell";
 import { requireTeacher } from "../actions";
-import { AddStudentForm, ResetPasscodeForm } from "../Forms";
+import { AddStudentForm, CopyButton, ResetPasscodeForm } from "../Forms";
 import { regenerateJoinCode, setClassSettings } from "../actions";
 import { classById, portfolioFor, studentsIn, tradesFor } from "@/lib/sim/data";
 import { REASONS, SELL_REASONS, money, qty } from "@/lib/sim/engine";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { siteUrl } from "@/lib/env";
 
 export const metadata = { title: "Class — Canadian Investment Challenge" };
 
@@ -34,6 +35,18 @@ export default async function ClassPage({ params }: { params: Promise<{ classId:
   // governs is whether a student's own page is ever sent this.
   const ranked = [...rows].sort((a, b) => b.portfolio.value - a.portfolio.value);
 
+  /* A join code is useless without somewhere to type it. The address was never
+     shown here, so a teacher could set a class up and have nothing to put on
+     the board. Written out in full, because it is going to be read aloud or
+     copied into a class post, not clicked. */
+  const joinUrl = `${siteUrl()}/sim/join`;
+  const handout = [
+    `Go to ${joinUrl}`,
+    `Class code: ${klass.join_code}`,
+    "Your name: exactly as your teacher entered it",
+    "Passcode: the one you were given",
+  ].join("\n");
+
   return (
     <Shell current="teach">
       <div className="hero">
@@ -45,6 +58,24 @@ export default async function ClassPage({ params }: { params: Promise<{ classId:
         </p>
         <p><Link href="/teach">← All classes</Link></p>
       </div>
+
+      <section className="card">
+        <h2>What to give your students</h2>
+        <p className="muted">Three things get them in. The first two are the same for everybody.</p>
+        <dl className="handout">
+          <dt>The address</dt>
+          <dd><a href={joinUrl}>{joinUrl.replace(/^https?:\/\//, "")}</a></dd>
+          <dt>Class code</dt>
+          <dd><code>{klass.join_code}</code></dd>
+          <dt>Their passcode</dt>
+          <dd className="muted">
+            Different for each student, shown once when you add them below. Lost one? Reset it in the table
+            further down &mdash; the new passcode signs the old session out.
+          </dd>
+        </dl>
+        <p className="faint">Students are never asked for an email address, and they do not create an account.</p>
+        <CopyButton text={handout} />
+      </section>
 
       <section className="card">
         <h2>Class settings</h2>
