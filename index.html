@@ -2355,6 +2355,22 @@ const MIT = (() => {
     menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
   }
   menuBtn.addEventListener("click", () => setMenu(!tabStrip.classList.contains("open")));
+  /* Closing on the route change alone is not enough: the link for the page you
+     are already on changes no hash, so the router never runs and the panel
+     stays open over the page. Closing here covers that too.
+
+     Focus moves to the button because the link just activated is about to be
+     display:none. A browser drops focus to the document when that happens, so
+     a keyboard or screen-reader user would lose their place and start the next
+     Tab from the top of the page. */
+  tabStrip.addEventListener("click", (e) => {
+    if (!tabStrip.classList.contains("open") || !e.target.closest("a")) return;
+    setMenu(false);
+    // Not on a window widened past the breakpoint while the panel was open:
+    // there the button is itself display:none, and focusing it drops focus to
+    // the document — the very thing this is here to avoid.
+    if (menuBtn.offsetParent) menuBtn.focus();
+  });
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && tabStrip.classList.contains("open")) { setMenu(false); menuBtn.focus(); }
   });
