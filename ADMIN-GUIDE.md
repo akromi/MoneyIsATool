@@ -80,7 +80,7 @@ signing in.
 | What they say | What is usually true, and what to do |
 | --- | --- |
 | I paid but I cannot get in | Two causes, in this order. First find the payment in Stripe and confirm the site recorded it: if Stripe shows the webhook failing, resend it from there and their access appears without them doing anything. If the payment did register, they are signing in with a different address from the one they paid with — Stripe will show you which. |
-| The sign-in email never arrived | Junk mail first, then request a new link. Each link is single use and only works in the browser that asked for it, so an old one will not work twice. |
+| The sign-in email never arrived | Junk mail first, then request a new link. Each link is single use and expires, so an old one will not work twice — but a fresh one can be opened on a different device from the one that asked for it, so that is not the problem. If nothing arrives at all, the delivery is the thing to look at. |
 | Our teachers cannot join | Check the licence. Either the seats are full, in which case add more, or the licence is suspended or past its expiry date. |
 | We lost our invite code | It is on the school licences list. Read it back to them, or have their administrator generate a fresh one from their own page. |
 | A teacher has left the school | Their administrator removes them, which frees the seat. |
@@ -115,22 +115,35 @@ minute.
 ## 6. The Canadian Investment Challenge, from here
 
 Running a class is included with a school licence, alongside the Teacher
-Resources. There is no separate product to sell, no separate switch to set: a
-school with an active licence can run classes, and one whose licence lapses
-cannot.
+Resources. There is no separate product to sell and no separate switch to set:
+a teacher at a licensed school can run classes, and a teacher whose licence
+lapses loses the pages that run them. Read the last point below before telling a
+school that ending a licence ends everything — it does not, quite.
 
 What that means for you:
 
 - **Nothing to administer per class.** Teachers create their own classes, add
   their own students and hand out their own passcodes.
-- **Students never appear in your accounts.** They have no email address and no
-  login — a name on a teacher's roster, and a passcode. Nothing to support, and
-  nothing of theirs for you to hold.
+- **Students never get an account**, so there is no password to reset and no
+  sign-in problem to support. That is not the same as holding nothing about
+  them. Per student the service keeps: the name a teacher typed, the class they
+  are in, a one-way hash of their passcode, whatever fictional household details
+  they filled in themselves, and every trade with the reason attached. No email
+  address, no student number, no date of birth, no tracking. It sits in a
+  database hosted in Canada, and a school that uses initials on the roster leaves
+  no direct identifier at all. Say that, rather than "we hold nothing", if a
+  school's privacy officer asks.
 - **Prices are entered by teachers**, one closing price per instrument per
   trading day, and they are shared by every class. If a school reports a price
   looking wrong, it is a teacher-side job, on the Closing prices page.
-- **Suspending a licence stops classes too**, immediately, along with everything
-  else on that licence.
+- **Suspending a licence does not stop a class on its own.** It takes the
+  *teacher's* access away at once — they cannot open a class, add a student or
+  enter prices. But a student signs in with the class code and their own
+  passcode, and neither is checked against the school's licence, so students
+  already on a roster can keep signing in and trading. To stop a class
+  completely, have the teacher turn off **Trading is open** on it, or ask for the
+  class to be deleted. Worth knowing before you tell a school their access has
+  ended.
 
 Everything else about it — setting a class up, the daily price job, what to tell
 a principal about student data — is in *Running the Challenge*, on the teacher
