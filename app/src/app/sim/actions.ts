@@ -3,9 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { classByJoinCode, classById, latestPrices, portfolioFor, studentById } from "@/lib/sim/data";
+import { classByJoinCode, classById, currentStudent, latestPrices, portfolioFor, studentByName } from "@/lib/sim/data";
 import { REASONS, SELL_REASONS } from "@/lib/sim/engine";
-import { currentStudentId, endSession, passcodeMatches, startSession } from "@/lib/sim/session";
+import { endSession, passcodeMatches, startSession } from "@/lib/sim/session";
 
 export type SimState = { error?: string; ok?: string };
 
@@ -19,12 +19,7 @@ export async function joinClass(_prev: SimState, form: FormData): Promise<SimSta
   const klass = await classByJoinCode(code);
   if (!klass) return { error: "That class code was not recognised. Check it with your teacher." };
 
-  const { data: student } = await createAdminClient()
-    .from("sim_students")
-    .select("id, display_name, passcode_salt, passcode_hash")
-    .eq("class_id", klass.id)
-    .ilike("display_name", name)
-    .maybeSingle();
+  const student = await studentByName(klass.id, name);
 
   // One message for both failures: saying which half was wrong tells an
   // outsider whether a name is on the roster.
@@ -32,7 +27,7 @@ export async function joinClass(_prev: SimState, form: FormData): Promise<SimSta
     return { error: "That name and passcode do not match this class." };
   }
 
-  await startSession(student.id);
+  await startSession(student.id, student.passcode_hash);
   redirect("/sim");
 }
 
@@ -46,11 +41,9 @@ export async function leaveSim(): Promise<void> {
  * says they traded. Nothing is ever updated: a correction is another trade.
  */
 export async function placeTrade(_prev: SimState, form: FormData): Promise<SimState> {
-  const studentId = await currentStudentId();
-  if (!studentId) return { error: "Your session has ended. Sign in again to keep trading." };
-
-  const student = await studentById(studentId);
+  const student = await currentStudent();
   if (!student) return { error: "Your session has ended. Sign in again to keep trading." };
+  const studentId = student.id;
   const klass = await classById(student.class_id);
   if (!klass) return { error: "This class is no longer available." };
   if (!klass.trading_open) return { error: "Your teacher has paused trading for this class." };
@@ -83,19 +76,26 @@ export async function placeTrade(_prev: SimState, form: FormData): Promise<SimSt
     }
   }
 
-  const { error } = await createAdminClient().from("sim_trades").insert({
-    student_id: studentId,
-    instrument_id: instrumentId,
-    side,
-    quantity,
-    price_used: price.close,
-    price_as_of: price.as_of,
-    price_delay: "end_of_day",
-    price_source: "seeded",
-    reason_code: reasonCode,
-    reason_text: reasonText,
+  // The checks above only produce a friendly message. This is the one that
+  // counts: it validates and inserts inside a lock on this student's row, so
+  // two requests arriving together cannot both spend the same cash.
+  const { error } = await createAdminClient().rpc("sim_place_trade", {
+    p_student_id: studentId,
+    p_instrument_id: instrumentId,
+    p_side: side,
+    p_quantity: quantity,
+    p_price: price.close,
+    p_price_as_of: price.as_of,
+    p_reason_code: reasonCode,
+    p_reason_text: reasonText,
   });
-  if (error) return { error: "That trade could not be recorded. Try again." };
+  if (error) {
+    const detail = error.message || "";
+    if (detail.includes("not enough cash")) return { error: "That costs more than the cash you have left." };
+    if (detail.includes("not enough units")) return { error: "You do not hold that many units." };
+    if (detail.includes("trading is paused")) return { error: "Your teacher has paused trading for this class." };
+    return { error: "That trade could not be recorded. Try again." };
+  }
 
   revalidatePath("/sim");
   return { ok: `${side === "buy" ? "Bought" : "Sold"} ${quantity} at ${price.close.toFixed(2)}, the close on ${price.as_of}.` };

@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
 import Shell from "@/components/Shell";
 import JoinForm from "./JoinForm";
-import { currentStudentId } from "@/lib/sim/session";
+import { currentStudent } from "@/lib/sim/data";
 
 export const metadata = { title: "Join your class — Canadian Investment Challenge" };
 
 export default async function JoinPage() {
-  if (await currentStudentId()) redirect("/sim");
+  if (await currentStudent()) redirect("/sim");
   return (
     <Shell>
       <div className="hero">

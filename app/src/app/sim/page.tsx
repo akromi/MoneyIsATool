@@ -2,26 +2,24 @@ import { redirect } from "next/navigation";
 import Shell from "@/components/Shell";
 import TradeForm from "./TradeForm";
 import { leaveSim } from "./actions";
-import { currentStudentId } from "@/lib/sim/session";
-import { classById, latestPrices, listInstruments, portfolioFor, studentById, tradesFor } from "@/lib/sim/data";
+import { classById, currentStudent, latestPrices, listInstruments, portfolioFor, standingsFor, tradesFor } from "@/lib/sim/data";
 import { REASONS, SELL_REASONS, money, qty } from "@/lib/sim/engine";
 
 export const metadata = { title: "My portfolio — Canadian Investment Challenge" };
 
 export default async function SimPage() {
-  const studentId = await currentStudentId();
-  if (!studentId) redirect("/sim/join");
-
-  const student = await studentById(studentId);
+  const student = await currentStudent();
   if (!student) redirect("/sim/join");
+  const studentId = student.id;
   const klass = await classById(student.class_id);
   if (!klass) redirect("/sim/join");
 
-  const [portfolio, trades, instruments, prices] = await Promise.all([
+  const [portfolio, trades, instruments, prices, standings] = await Promise.all([
     portfolioFor(studentId, klass.starting_cash),
     tradesFor(studentId),
     listInstruments(),
     latestPrices(),
+    standingsFor(klass, studentId),
   ]);
   const bySymbol = new Map(instruments.map((i) => [i.id, i]));
 
@@ -86,6 +84,27 @@ export default async function SimPage() {
           </div>
         )}
       </section>
+
+      {standings && (
+        <section className="card">
+          <h2>{klass.leaderboard_mode === "full" ? "How the class is doing" : "Leading the class"}</h2>
+          <p className="muted">Your teacher chose to show this. It ranks by portfolio value alone, which is not the whole story.</p>
+          <div className="tablewrap">
+            <table>
+              <thead><tr><th>#</th><th>Student</th><th>Value</th></tr></thead>
+              <tbody>
+                {standings.map((r) => (
+                  <tr key={`${r.rank}-${r.name}`} style={r.isMe ? { fontWeight: 700 } : undefined}>
+                    <td>{r.rank}</td>
+                    <td>{r.name}{r.isMe ? " (you)" : ""}</td>
+                    <td>{money(r.value)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
 
       <section className="card">
         <h2>Buy or sell</h2>

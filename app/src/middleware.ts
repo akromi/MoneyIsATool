@@ -39,8 +39,9 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Everything except static assets and the Stripe webhook, which must reach
-  // the route untouched — and which therefore stays reachable while the beta
-  // gate is up, so purchases keep being recorded.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon.svg|api/stripe/webhook|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  // Everything except static assets and the two routes that machines call:
+  // the Stripe webhook, so purchases keep being recorded, and the simulation's
+  // nightly price job. Both must stay reachable while the beta gate is up —
+  // a cron that gets the password page writes nothing and says nothing.
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|icon.svg|api/stripe/webhook|api/sim/prices|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 };

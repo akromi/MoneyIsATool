@@ -2,22 +2,35 @@
 
 import { revalidatePath } from "next/cache";
 import { requireUser } from "@/lib/auth";
+import { getEntitlements } from "@/lib/entitlements";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { classById } from "@/lib/sim/data";
 import { hashPasscode, newJoinCode, newPasscode, newSalt } from "@/lib/sim/session";
 
 export type TeachState = { error?: string; ok?: string };
 
+/**
+ * Running a class is part of a school licence, so being signed in is not
+ * enough: an unpaid account, or one whose licence lapsed, has no business
+ * creating or continuing one. Same gate the Teacher Resources page uses.
+ */
+export async function requireTeacher() {
+  const user = await requireUser("/teach");
+  const ent = await getEntitlements(user);
+  if (!ent.teacher) throw new Error("A school licence is needed to run a class.");
+  return user;
+}
+
 /** A teacher may only ever touch their own classes. Checked on every action. */
 async function ownClass(classId: string) {
-  const user = await requireUser("/teach");
+  const user = await requireTeacher();
   const klass = await classById(classId);
   if (!klass || klass.teacher_id !== user.id) throw new Error("Not your class");
   return klass;
 }
 
 export async function createClass(_prev: TeachState, form: FormData): Promise<TeachState> {
-  const user = await requireUser("/teach");
+  const user = await requireTeacher();
   const name = String(form.get("name") || "").trim();
   const cash = Number(String(form.get("cash") || "25000").replace(/[$,\s]/g, ""));
   if (!name) return { error: "Give the class a name." };

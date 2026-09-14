@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Shell from "@/components/Shell";
-import { requireUser } from "@/lib/auth";
+import { requireTeacher } from "../actions";
 import { AddStudentForm, ResetPasscodeForm } from "../Forms";
 import { regenerateJoinCode, setClassSettings } from "../actions";
 import { classById, portfolioFor, studentsIn, tradesFor } from "@/lib/sim/data";
@@ -12,7 +12,7 @@ export const metadata = { title: "Class — Canadian Investment Challenge" };
 
 export default async function ClassPage({ params }: { params: Promise<{ classId: string }> }) {
   const { classId } = await params;
-  const user = await requireUser(`/teach/${classId}`);
+  const user = await requireTeacher();
   const klass = await classById(classId);
   // A class that is not this teacher's is not found, rather than forbidden:
   // there is no reason to confirm that somebody else's class id exists.

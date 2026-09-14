@@ -10,13 +10,18 @@ import { env } from "@/lib/env";
  * instead, issued after they present the class code, their name and the
  * passcode their teacher handed out.
  *
- * The cookie carries the student's id and nothing else. It is signed, not
- * encrypted — there is nothing private in an opaque id, and the signature is
- * what stops one student claiming to be another.
+ * The cookie carries three things, all signed together:
+ *
+ *   the student's id — opaque, so there is nothing private to encrypt;
+ *   when it was issued — checked here, because a cookie's own Max-Age is a
+ *     hint to the browser and nothing stops a copied cookie ignoring it;
+ *   a stamp derived from the passcode — so resetting a student's passcode
+ *     invalidates every session already issued to them, which is the whole
+ *     point of a teacher resetting it.
  */
 
 const COOKIE = "mit_sim";
-const MAX_AGE = 60 * 60 * 12; // A school day, not a month.
+const MAX_AGE_SECONDS = 60 * 60 * 12; // A school day.
 
 /** No new environment variable to configure: the service key never leaves the server. */
 function secret(): string {
@@ -33,31 +38,57 @@ function sameString(a: string, b: string): boolean {
   return x.length === y.length && timingSafeEqual(x, y);
 }
 
-export async function startSession(studentId: string): Promise<void> {
-  const store = await cookies();
-  store.set(COOKIE, `${studentId}.${sign(studentId)}`, {
+/**
+ * A short stamp standing for "the passcode as it was when this session began".
+ * Not the hash itself: there is no reason to put credential material, even
+ * hashed, into something the browser holds.
+ */
+export function passcodeStamp(passcodeHash: string): string {
+  return createHash("sha256").update(`stamp:${passcodeHash}`).digest("hex").slice(0, 16);
+}
+
+export type SimSession = { studentId: string; stamp: string };
+
+export async function startSession(studentId: string, passcodeHash: string): Promise<void> {
+  const issued = Math.floor(Date.now() / 1000);
+  const stamp = passcodeStamp(passcodeHash);
+  const payload = `${studentId}.${issued}.${stamp}`;
+  (await cookies()).set(COOKIE, `${payload}.${sign(payload)}`, {
     httpOnly: true,
     secure: true,
     sameSite: "lax",
     path: "/",
-    maxAge: MAX_AGE,
+    maxAge: MAX_AGE_SECONDS,
   });
 }
 
 export async function endSession(): Promise<void> {
-  const store = await cookies();
-  store.delete(COOKIE);
+  (await cookies()).delete(COOKIE);
 }
 
-/** The signed-in student's id, or null. Never trust the id without the signature. */
-export async function currentStudentId(): Promise<string | null> {
+/**
+ * The session this request carries, if the signature holds and it has not aged
+ * out. Says nothing about whether the passcode has since been reset — the
+ * caller compares `stamp` against the student's current passcode for that.
+ */
+export async function readSession(): Promise<SimSession | null> {
   const raw = (await cookies()).get(COOKIE)?.value;
   if (!raw) return null;
-  const cut = raw.lastIndexOf(".");
-  if (cut < 1) return null;
-  const id = raw.slice(0, cut);
-  const mac = raw.slice(cut + 1);
-  return sameString(mac, sign(id)) ? id : null;
+
+  const parts = raw.split(".");
+  if (parts.length !== 4) return null;
+  const [studentId, issuedRaw, stamp, mac] = parts;
+
+  if (!sameString(mac, sign(`${studentId}.${issuedRaw}.${stamp}`))) return null;
+
+  const issued = Number(issuedRaw);
+  if (!Number.isFinite(issued)) return null;
+  const age = Math.floor(Date.now() / 1000) - issued;
+  // A negative age means a clock moved or the value was fabricated; neither is
+  // a session worth honouring.
+  if (age < 0 || age > MAX_AGE_SECONDS) return null;
+
+  return { studentId, stamp };
 }
 
 /* ---------- passcodes ---------- */

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Shell from "@/components/Shell";
 import { requireUser } from "@/lib/auth";
+import { getEntitlements } from "@/lib/entitlements";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NewClassForm } from "./Forms";
 
@@ -8,6 +9,20 @@ export const metadata = { title: "My classes — Canadian Investment Challenge" 
 
 export default async function TeachPage() {
   const user = await requireUser("/teach");
+  const ent = await getEntitlements(user);
+  if (!ent.teacher) {
+    return (
+      <Shell current="teach">
+        <div className="hero"><div className="kicker">Canadian Investment Challenge</div><h1>For licensed schools</h1></div>
+        <div className="card" style={{ maxWidth: 640 }}>
+          <p>Running a class is included with a school licence, alongside the Teacher Resources.</p>
+          <p><Link className="btn" href="/school-licence">Request a school licence</Link></p>
+          <p className="faint">Already licensed? Ask your school&apos;s licence administrator for the invite link, then sign in with the same email.</p>
+        </div>
+      </Shell>
+    );
+  }
+
   const { data } = await createAdminClient()
     .from("sim_classes")
     .select("id, name, join_code, starting_cash, leaderboard_mode, trading_open, created_at")
